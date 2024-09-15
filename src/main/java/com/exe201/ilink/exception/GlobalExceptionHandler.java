@@ -3,10 +3,14 @@ package com.exe201.ilink.exception;
 import com.exe201.ilink.Util.DateUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -27,6 +31,27 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+        Map<String, String> errors = new HashMap<>();
+        exception.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String message = error.getDefaultMessage();
+            errors.put(fieldName, message);
+        });
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ExceptionResponse.builder()
+                                .httpStatus(HttpStatus.BAD_REQUEST.value())
+                                .timestamp(DateUtil.formatTimestamp(new Date()))
+                                .data(errors)
+                                .build()
+                );
+
+    }
+
     @ExceptionHandler(RegisterAccountExistedException.class)
     public ResponseEntity<ExceptionResponse> handleRegisterAccountExistedException(RegisterAccountExistedException exception){
         return ResponseEntity
@@ -36,6 +61,20 @@ public class GlobalExceptionHandler {
                                 .httpStatus(HttpStatus.BAD_REQUEST.value())
                                 .timestamp(DateUtil.formatTimestamp(new Date()))
                                 .message("Registration request failed. Account already existed.")
+                                .error(exception.getMessage())
+                                .build()
+                );
+    }
+
+    @ExceptionHandler(ActivationCodeException.class)
+    public ResponseEntity<ExceptionResponse> handleActivationCodeException(ActivationCodeException exception){
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ExceptionResponse.builder()
+                                .httpStatus(HttpStatus.BAD_REQUEST.value())
+                                .timestamp(DateUtil.formatTimestamp(new Date()))
+                                .message("Email verification failed.")
                                 .error(exception.getMessage())
                                 .build()
                 );

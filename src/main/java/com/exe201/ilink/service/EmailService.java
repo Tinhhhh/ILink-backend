@@ -13,5 +13,9 @@ public interface EmailService {
             String confirmationUrl,
             String activationCode,
             String subject
-    );
+    ) throws MessagingException, UnsupportedEncodingException;
+
+    void sendSimpleEmail(String name, String to, String token);
+
+    void sendMimeMessageWithAttachment(String name, String to,String code, String subject, String text, String pathToAttachment) throws MessagingException;
 }
