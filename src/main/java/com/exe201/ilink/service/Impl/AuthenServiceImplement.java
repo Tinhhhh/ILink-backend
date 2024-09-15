@@ -13,6 +13,7 @@ import com.exe201.ilink.repository.EmailTokenRepository;
 import com.exe201.ilink.repository.RoleRepository;
 import com.exe201.ilink.service.AuthenService;
 import com.exe201.ilink.service.EmailService;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class AuthenServiceImplement implements AuthenService {
 //    private static final Logger logger = LoggerFactory.getLogger(LogoutServiceConfig.class);
 
     @Override
-    public void register(RegistrationRequest request) {
+    public void register(RegistrationRequest request) throws MessagingException {
          Role accountRole = roleRepository.findByRoleName("USER")
                 .orElseThrow(() -> new IllegalStateException("Role USER not found"));
         if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -76,7 +77,7 @@ public class AuthenServiceImplement implements AuthenService {
     }
 
     @Override
-    public void activeAccount(String token, HttpServletResponse response) {
+    public void activeAccount(String token, HttpServletResponse response) throws MessagingException {
 
         EmailToken savedCode = emailTokenRepository.findByToken(token)
                 .orElseThrow(() -> new ActivationCodeException("active code not found"));
@@ -126,9 +127,9 @@ public class AuthenServiceImplement implements AuthenService {
     }
 
 
-    private void sendValidationEmail(Account account) {
+    private void sendValidationEmail(Account account) throws MessagingException {
         String validatedToken = generateActiveToken(account);
-        emailService.sendSimpleEmail(account.fullName(), account.getEmail(), validatedToken);
+        emailService.sendMimeMessageWithHtml(account.fullName(), account.getEmail(), validatedToken);
 //        emailService.sendEmail(
 //                account.getEmail(),
 //                account.fullName(),

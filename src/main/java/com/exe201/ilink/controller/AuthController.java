@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -39,7 +40,7 @@ public class AuthController {
             """)))})
     @PostMapping("/registration")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public ResponseEntity<Object> Register(@RequestBody @Valid RegistrationRequest request) {
+    public ResponseEntity<Object> Register(@RequestBody @Valid RegistrationRequest request) throws MessagingException {
         authService.register(request);
         return CustomSuccessHandler.responseBuilder(HttpStatus.ACCEPTED, "Successfully Register", "Please check your email for account verification.");
     }
@@ -87,8 +88,9 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "Activation code has expired. A new code has been sent to your email address"),})
     @GetMapping("/activation")
     @ResponseStatus(HttpStatus.OK)
-    public void accountActivation(@RequestParam String code, HttpServletResponse response) {
+    public ResponseEntity<String> accountActivation(@RequestParam String code, HttpServletResponse response) throws MessagingException {
         authService.activeAccount(code, response);
+        return ResponseEntity.ok().body("Account verification successfully");
     }
 
 

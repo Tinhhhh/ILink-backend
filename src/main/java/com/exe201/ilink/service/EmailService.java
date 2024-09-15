@@ -17,5 +17,7 @@ public interface EmailService {
 
     void sendSimpleEmail(String name, String to, String token);
 
-    void sendMimeMessageWithAttachment(String name, String to,String code, String subject, String text, String pathToAttachment) throws MessagingException;
+    void sendMimeMessageWithEmbeddedFiles(String name, String to,String code) throws MessagingException;
+
+    void sendMimeMessageWithHtml(String name, String to,String code) throws MessagingException;
 }

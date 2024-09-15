@@ -5,6 +5,7 @@ import com.exe201.ilink.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -99,7 +100,7 @@ public class EmailServiceImplement implements EmailService {
     }
 
     @Override
-    public void sendMimeMessageWithAttachment(String name, String to,String code, String subject, String text, String pathToAttachment) throws MessagingException {
+    public void sendMimeMessageWithEmbeddedFiles(String name, String to,String code) throws MessagingException {
         try {
             MimeMessage message = getMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF_8_CODING);
@@ -108,6 +109,7 @@ public class EmailServiceImplement implements EmailService {
             helper.setFrom(sender);
             helper.setTo(to);
             helper.setText(activeCodeMessage(name, activationUrl, code));
+            //Embedded image
             mailSender.send(message);
         } catch (Exception exception){
             System.out.println("Error: " + exception.getMessage());
@@ -116,7 +118,34 @@ public class EmailServiceImplement implements EmailService {
 
     }
 
+    @Override
+    @Async
+    public void sendMimeMessageWithHtml(String name, String to, String code) throws MessagingException {
+        try {
+            String senderNickName = "Customer Service Team at ILink";
+            Context context = new Context();
+            context.setVariable("username", name);
+            context.setVariable("activation_code", code);
+            String text = templateEngine.process(EmailTemplateName.ACTIVATE_ACCOUNT.getName(), context);
+            MimeMessage message = getMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF_8_CODING);
+            helper.setSubject(NEW_USER_ACCOUNT_ACTIVATION);
+            helper.setPriority(1);
+            helper.setFrom(sender,senderNickName);
+            helper.setTo(to);
+            helper.setText(text, true);
+            mailSender.send(message);
+        } catch (Exception exception){
+            System.out.println("Error: " + exception.getMessage());
+            throw new RuntimeException("Error: " + exception.getMessage());
+        }
+    }
+
     public MimeMessage getMessage(){
         return mailSender.createMimeMessage();
+    }
+
+    public String getContentId(String filename){
+        return "<" + filename + ">";
     }
 }
