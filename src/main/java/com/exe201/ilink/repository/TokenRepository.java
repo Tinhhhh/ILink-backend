@@ -7,10 +7,17 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 public interface TokenRepository extends JpaRepository<Token, Long> {
+    @Query("SELECT t FROM Token t WHERE t.account.accountId = :accountId AND t.expired = false AND t.revoked = false")
+    List<Token> findAllValidTokensByUser(UUID accountId);
+
     Token findTokenByAccessToken(String AccessToken);
 
-    Token findByRefreshTokenAndRevokedFalseAndExpiredFalse(String refreshToken);
+    Optional<Token> findByRefreshTokenAndRevokedFalseAndExpiredFalse(String refreshToken);
 
     @Modifying
     @Transactional

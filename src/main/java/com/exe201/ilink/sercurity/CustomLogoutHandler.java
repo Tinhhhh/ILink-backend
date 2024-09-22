@@ -16,9 +16,9 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-public class CustomeLogoutHandler implements LogoutHandler {
+public class CustomLogoutHandler implements LogoutHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(CustomeLogoutHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(CustomLogoutHandler.class);
 
     private final TokenRepository tokenRepository;
 

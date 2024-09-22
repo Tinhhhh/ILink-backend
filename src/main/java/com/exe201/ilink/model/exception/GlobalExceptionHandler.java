@@ -1,4 +1,4 @@
-package com.exe201.ilink.exception;
+package com.exe201.ilink.model.exception;
 
 import com.exe201.ilink.Util.DateUtil;
 import org.springframework.http.HttpStatus;
@@ -76,6 +76,19 @@ public class GlobalExceptionHandler {
                                 .timestamp(DateUtil.formatTimestamp(new Date()))
                                 .message("Email verification failed.")
                                 .error(exception.getMessage())
+                                .build()
+                );
+    }
+
+    @ExceptionHandler(ILinkException.class)
+    public ResponseEntity<ExceptionResponse> handleILinkException(ILinkException exception){
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ExceptionResponse.builder()
+                                .httpStatus(HttpStatus.BAD_REQUEST.value())
+                                .timestamp(DateUtil.formatTimestamp(new Date()))
+                                .message(exception.getMessage())
                                 .build()
                 );
     }

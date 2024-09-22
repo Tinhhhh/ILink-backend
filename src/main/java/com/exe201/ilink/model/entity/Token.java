@@ -1,6 +1,6 @@
 package com.exe201.ilink.model.entity;
 
-import com.exe201.ilink.enums.TokenType;
+import com.exe201.ilink.model.enums.TokenType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

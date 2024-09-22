@@ -33,7 +33,7 @@ public class Account implements UserDetails, Principal {
     @GeneratedValue(strategy = GenerationType.UUID)
     @JsonProperty("account_id")
     @Column(name = "account_id")
-    private UUID userId;
+    private UUID accountId;
 
     @JsonProperty("first_name")
     @Column(name = "first_name")
@@ -65,11 +65,9 @@ public class Account implements UserDetails, Principal {
     @Column(name = "avatar")
     private String avatar;
 
-    @JsonIgnore
     @Column(name = "is_locked")
     private boolean isLocked;
 
-    @JsonIgnore
     @Column(name = "is_enable")
     private boolean isEnable;
 

@@ -1,4 +1,4 @@
-package com.exe201.ilink.exception;
+package com.exe201.ilink.model.exception;
 
 import com.exe201.ilink.Util.DateUtil;
 import org.springframework.http.HttpStatus;
@@ -16,7 +16,7 @@ public class CustomSuccessHandler {
         response.put("message", message);
         response.put("data", responseObject);
 
-        return ResponseEntity.status(httpStatus).body(responseObject);
+        return new ResponseEntity<>(response, httpStatus);
 
     }
 }

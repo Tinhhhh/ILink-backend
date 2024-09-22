@@ -1,12 +1,11 @@
 package com.exe201.ilink.sercurity;
 
-import com.exe201.ilink.exception.ValidateTokenException;
+import com.exe201.ilink.model.exception.ILinkException;
 import com.exe201.ilink.repository.TokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -61,7 +60,11 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-    // get username from JWT token
+    /**
+     * Get username from token
+     * @param token
+     * @return userEmail
+     */
     public String getUsername(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key())
@@ -81,13 +84,13 @@ public class JwtTokenProvider {
                     .parse(token);
             return true;
         } catch (MalformedJwtException e) {
-            throw new ValidateTokenException(HttpStatus.BAD_REQUEST, "Invalid JWT token");
+            throw new ILinkException("Invalid JWT token");
         } catch (ExpiredJwtException e) {
-            throw new ValidateTokenException(HttpStatus.BAD_REQUEST, "Expired JWT token");
+            throw new ILinkException("Expired JWT token");
         } catch (UnsupportedJwtException e) {
-            throw new ValidateTokenException(HttpStatus.BAD_REQUEST, "Unsupported JWT token");
+            throw new ILinkException("Unsupported JWT token");
         } catch (IllegalArgumentException e) {
-            throw new ValidateTokenException(HttpStatus.BAD_REQUEST, "JWT claims string is empty");
+            throw new ILinkException("JWT claims string is empty");
         }
     }
 

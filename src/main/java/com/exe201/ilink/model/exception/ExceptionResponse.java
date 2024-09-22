@@ -1,4 +1,4 @@
-package com.exe201.ilink.exception;
+package com.exe201.ilink.model.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;

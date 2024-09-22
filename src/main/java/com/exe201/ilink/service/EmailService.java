@@ -1,6 +1,6 @@
 package com.exe201.ilink.service;
 
-import com.exe201.ilink.enums.EmailTemplateName;
+import com.exe201.ilink.model.enums.EmailTemplateName;
 import jakarta.mail.MessagingException;
 
 import java.io.UnsupportedEncodingException;
