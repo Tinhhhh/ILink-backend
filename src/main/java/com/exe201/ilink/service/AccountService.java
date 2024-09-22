@@ -4,5 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 
 public interface AccountService {
-    ResponseEntity<Object> getAccountInformation(HttpServletRequest request);
+
+    ResponseEntity<Object> getCurrentAccountInfo(HttpServletRequest request);
 }

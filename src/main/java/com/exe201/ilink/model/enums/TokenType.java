@@ -1,4 +1,4 @@
-package com.exe201.ilink.enums;
+package com.exe201.ilink.model.enums;
 
 public enum TokenType {
     BEARER
