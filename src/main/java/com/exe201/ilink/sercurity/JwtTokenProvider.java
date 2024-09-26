@@ -1,6 +1,7 @@
 package com.exe201.ilink.sercurity;
 
 import com.exe201.ilink.model.exception.ILinkException;
+import com.exe201.ilink.repository.ResetPasswordTokenRepository;
 import com.exe201.ilink.repository.TokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -16,6 +17,7 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
+    private final ResetPasswordTokenRepository resetPasswordTokenRepository;
     private final TokenRepository tokenRepository;
     @Value("${jwt.secret-key}")
     private String jwtSecret;
@@ -26,7 +28,8 @@ public class JwtTokenProvider {
     @Value("${jwt.expiration.refresh-token}")
     private Long refreshTokenExpiration;
 
-    public JwtTokenProvider(TokenRepository tokenRepository) {
+    public JwtTokenProvider(ResetPasswordTokenRepository resetPasswordTokenRepository, TokenRepository tokenRepository) {
+        this.resetPasswordTokenRepository = resetPasswordTokenRepository;
         this.tokenRepository = tokenRepository;
     }
 
@@ -111,5 +114,10 @@ public class JwtTokenProvider {
     @Scheduled(cron = "0 0 2 * * *")
     public void scheduledDeleteExpiredToken() {
         tokenRepository.deleteTokensByRevokedTrueAndExpiredTrue();
+    }
+
+    @Scheduled(cron = "0 0 2 * * *")
+    public void scheduledDeleteExpiredResetPasswordToken() {
+        resetPasswordTokenRepository.deleteTokensByRevokedTrue();
     }
 }

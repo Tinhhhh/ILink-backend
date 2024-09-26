@@ -19,5 +19,6 @@ public interface EmailService {
 
     void sendMimeMessageWithEmbeddedFiles(String name, String to,String code) throws MessagingException;
 
-    void sendMimeMessageWithHtml(String name, String to,String code) throws MessagingException;
+    void sendMimeMessageWithHtml(String name, String to,String content, String template, String subject) throws MessagingException;
+
 }

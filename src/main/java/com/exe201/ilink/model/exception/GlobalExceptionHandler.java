@@ -83,10 +83,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ILinkException.class)
     public ResponseEntity<ExceptionResponse> handleILinkException(ILinkException exception){
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(exception.getHttpStatus().value())
                 .body(
                         ExceptionResponse.builder()
-                                .httpStatus(HttpStatus.BAD_REQUEST.value())
+                                .httpStatus(exception.getHttpStatus().value())
                                 .timestamp(DateUtil.formatTimestamp(new Date()))
                                 .message(exception.getMessage())
                                 .build()

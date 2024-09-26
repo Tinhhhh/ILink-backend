@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 @RestController
 @RequestMapping("auth")
@@ -93,6 +94,22 @@ public class AuthController {
     public ResponseEntity<Object> refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Generate new Refresh Token and Access Token successfully", authService.refreshToken(request, response));
     }
+
+    @PostMapping("/forgot-password")
+    @ResponseStatus(HttpStatus.OK)
+    public String forgotPassword(@RequestParam String email) throws MessagingException, NoSuchAlgorithmException {
+        authService.forgotPassword(email);
+        return "Password reset link has been sent to your email";
+    }
+
+    @PostMapping("/reset-password")
+    @ResponseStatus(HttpStatus.OK)
+    public String resetPassword(@RequestParam(value = "Password") String password, @RequestParam String token) {
+        authService.resetPassword(password, token);
+        return "Reset password successfully";
+    }
+
+
 //
 //    @Operation(summary = "Social Login in to the system using Google (Mobile)", description = "Login into the system using Google. The response will include an access token and a refresh token")
 //    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successfully SignIn with Google", content = @Content(examples = @ExampleObject(value = """

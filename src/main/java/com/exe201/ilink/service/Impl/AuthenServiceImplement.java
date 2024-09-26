@@ -1,20 +1,15 @@
 package com.exe201.ilink.service.Impl;
 
+import com.exe201.ilink.model.entity.*;
+import com.exe201.ilink.model.enums.EmailTemplateName;
 import com.exe201.ilink.model.enums.TokenType;
 import com.exe201.ilink.model.exception.ActivationCodeException;
 import com.exe201.ilink.model.exception.ILinkException;
 import com.exe201.ilink.model.exception.RegisterAccountExistedException;
-import com.exe201.ilink.model.entity.Account;
-import com.exe201.ilink.model.entity.EmailToken;
-import com.exe201.ilink.model.entity.Role;
-import com.exe201.ilink.model.entity.Token;
 import com.exe201.ilink.model.payload.dto.request.AuthenticationRequest;
 import com.exe201.ilink.model.payload.dto.request.RegistrationRequest;
 import com.exe201.ilink.model.payload.dto.response.AuthenticationResponse;
-import com.exe201.ilink.repository.AccountRepository;
-import com.exe201.ilink.repository.EmailTokenRepository;
-import com.exe201.ilink.repository.RoleRepository;
-import com.exe201.ilink.repository.TokenRepository;
+import com.exe201.ilink.repository.*;
 import com.exe201.ilink.sercurity.CustomUserDetailsService;
 import com.exe201.ilink.sercurity.JwtTokenProvider;
 import com.exe201.ilink.service.AuthenService;
@@ -36,8 +31,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Base64;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +50,10 @@ public class AuthenServiceImplement implements AuthenService {
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenRepository tokenRepository;
     private final CustomUserDetailsService userDetailsService;
+    private final ResetPasswordTokenRepository resetPasswordTokenRepository;
+
+    @Value("${application.email.url}")
+    private String url;
 
     @Value("${application.email.secure.characters}")
     private String emailSecureChar;
@@ -60,25 +62,25 @@ public class AuthenServiceImplement implements AuthenService {
 
     @Override
     public void register(RegistrationRequest request) throws MessagingException {
-         Role accountRole = roleRepository.findByRoleName("USER")
-                .orElseThrow(() -> new IllegalStateException("Role USER not found"));
+        Role accountRole = roleRepository.findByRoleName("USER")
+            .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Role USER not found"));
         if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RegisterAccountExistedException("Account already exists");
         }
 
         Account account = Account.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(request.getEmail())
-                .address(request.getAddress())
-                .phone(request.getPhone())
-                .gender("")
-                .dob(null)
-                .password(passwordEncoder.encode(request.getPassword()))
-                .isLocked(false)
-                .isEnable(false)
-                .role(accountRole)
-                .build();
+            .firstName(request.getFirstName())
+            .lastName(request.getLastName())
+            .email(request.getEmail())
+            .address(request.getAddress())
+            .phone(request.getPhone())
+            .gender("")
+            .dob(null)
+            .password(passwordEncoder.encode(request.getPassword()))
+            .isLocked(false)
+            .isEnable(false)
+            .role(accountRole)
+            .build();
         accountRepository.save(account);
         sendValidationEmail(account);
     }
@@ -86,17 +88,17 @@ public class AuthenServiceImplement implements AuthenService {
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
+            new UsernamePasswordAuthenticationToken(
+                request.getEmail(),
+                request.getPassword()
+            )
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         Account account = accountRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new ILinkException("Authentication fails. Your authentication information is incorrect, please try again"));
+            .orElseThrow(() -> new ILinkException(HttpStatus.UNAUTHORIZED, "Authentication fails. Your authentication information is incorrect, please try again"));
         if (!account.isEnabled()) {
-            throw new ILinkException("Account is not Enabled. Please use the last activation code sent to your email to activate your account");
+            throw new ILinkException(HttpStatus.BAD_REQUEST, "Account is not Enabled. Please use the last activation code sent to your email to activate your account");
         }
 
         String accessToken = jwtTokenProvider.generateAccessToken(authentication);
@@ -106,16 +108,16 @@ public class AuthenServiceImplement implements AuthenService {
         saveUserToken(account, accessToken, refreshToken);
 
         return AuthenticationResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .build();
     }
 
     @Override
     public void activeAccount(String token, HttpServletResponse response) throws MessagingException {
 
         EmailToken savedCode = emailTokenRepository.findByToken(token)
-                .orElseThrow(() -> new ActivationCodeException("active code not found"));
+            .orElseThrow(() -> new ActivationCodeException("active code not found"));
 
         if (savedCode.getValidateAt() != null) {
             throw new ActivationCodeException("Your account is already activated");
@@ -134,20 +136,12 @@ public class AuthenServiceImplement implements AuthenService {
         }
 
         Account account = accountRepository.findById(savedCode.getAccount().getAccountId())
-                .orElseThrow(() -> new UsernameNotFoundException("Account not found"));
+            .orElseThrow(() -> new UsernameNotFoundException("Account not found"));
         account.setEnable(true);
         accountRepository.save(account);
         savedCode.setValidateAt(LocalDateTime.now());
         savedCode.setRevokedToken(true);
         emailTokenRepository.save(savedCode);
-
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setContentType("text/plain");
-//        try {
-//            response.getWriter().write("Account verification successfully");
-//        } catch (IOException e) {
-//            logger.error("Error writing error response", e);
-//        }
 
     }
 
@@ -156,14 +150,14 @@ public class AuthenServiceImplement implements AuthenService {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String jwtToken;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new ILinkException("No JWT token found in the request header");
+            throw new ILinkException(HttpStatus.UNAUTHORIZED, "No JWT token found in the request header");
         }
 
         jwtToken = authHeader.substring(7);
         Token token = tokenRepository.findByRefreshTokenAndRevokedFalseAndExpiredFalse(jwtToken)
-                .orElseThrow(() -> new ILinkException("Invalid access token. Access token is revoked or expired"));
+            .orElseThrow(() -> new ILinkException(HttpStatus.UNAUTHORIZED, "Invalid access token. Access token is revoked or expired"));
 
-        if (token!=null){
+        if (token != null) {
             token.setExpired(true);
             token.setRevoked(true);
             tokenRepository.save(token);
@@ -190,17 +184,17 @@ public class AuthenServiceImplement implements AuthenService {
         if (userEmail != null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
             Token token = tokenRepository.findByRefreshTokenAndRevokedFalseAndExpiredFalse(refreshToken)
-                    .orElseThrow(() -> new ILinkException("Invalid refresh token. Refresh token is revoked or expired"));
+                .orElseThrow(() -> new ILinkException(HttpStatus.UNAUTHORIZED, "Invalid refresh token. Refresh token is revoked or expired"));
             if (!token.isRevoked() && !token.isExpired()) {
 
                 Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
+                    userDetails,
+                    null,
+                    userDetails.getAuthorities()
                 );
 
                 Account account = accountRepository.findByEmail(userEmail)
-                        .orElseThrow(() -> new ILinkException("Invalid user. User not found"));
+                    .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "Invalid user. User not found"));
 
                 revokeAllUserToken(account);
 
@@ -210,27 +204,92 @@ public class AuthenServiceImplement implements AuthenService {
                 saveUserToken(account, accessToken, newRefreshToken);
 
                 return AuthenticationResponse.builder()
-                        .accessToken(accessToken)
-                        .refreshToken(newRefreshToken)
-                        .build();
+                    .accessToken(accessToken)
+                    .refreshToken(newRefreshToken)
+                    .build();
 
             } else {
-                throw new ILinkException("Token is invalid or not exist");
+                throw new ILinkException(HttpStatus.BAD_REQUEST, "Token is invalid or not exist");
             }
         }
 
         return null;
     }
 
+    @Override
+    public void forgotPassword(String email) throws NoSuchAlgorithmException, MessagingException {
 
-    private void sendValidationEmail(Account account) throws MessagingException {
-        String validatedToken = generateActiveToken(account);
-        emailService.sendMimeMessageWithHtml(account.fullName(), account.getEmail(), validatedToken);
+        Account account = accountRepository.findByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException("Account not found"));
+
+        String token = generateResetPasswordToken(32);
+        StringBuilder link = new StringBuilder();
+        link.append(url).append("/auth/reset-password?").append("token=").append(token);
+        emailService.sendMimeMessageWithHtml(
+            account.fullName(), account.getEmail(), link.toString(),
+            EmailTemplateName.FORGOT_PASSWORD.getName(), "Reset your password");
+
+        PasswordResetToken passwordResetToken = PasswordResetToken.builder()
+            .token(token)
+            .expiryDate(LocalDateTime.now().plusMinutes(30))
+            .isRevoked(false)
+            .account(account)
+            .build();
+
+        resetPasswordTokenRepository.save(passwordResetToken);
 
     }
 
+    @Override
+    public void resetPassword(String newPassword, String token) {
+        PasswordResetToken resetPasswordToken = resetPasswordTokenRepository.findByToken(token)
+            .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "Token not found"));
+
+        if (resetPasswordToken.isRevoked()) {
+            throw new ILinkException(HttpStatus.BAD_REQUEST, "Token is invalid or revoked");
+        }
+
+        if (LocalDateTime.now().isAfter(resetPasswordToken.getExpiryDate())) {
+            resetPasswordToken.setRevoked(true);
+            resetPasswordTokenRepository.save(resetPasswordToken);
+            throw new ILinkException(HttpStatus.BAD_REQUEST, "Token is expired");
+        }
+
+        Account account = accountRepository.findById(resetPasswordToken.getAccount().getAccountId())
+            .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "Account not found"));
+
+        account.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+        resetPasswordToken.setRevoked(true);
+        resetPasswordTokenRepository.save(resetPasswordToken);
+
+    }
+
+    private void sendValidationEmail(Account account) throws MessagingException {
+        String validatedToken = generateActiveToken(account);
+        emailService.sendMimeMessageWithHtml(
+            account.fullName(), account.getEmail(), validatedToken,
+            EmailTemplateName.ACTIVATE_ACCOUNT.getName(), "Activate your new account");
+
+    }
+
+    private String generateResetPasswordToken(int codelength) throws NoSuchAlgorithmException {
+        StringBuilder codeBuilder = new StringBuilder();
+        SecureRandom random = new SecureRandom();
+        //lay ngau nhien 1 ki tu trong chuoi emailSecurecHar
+        for (int i = 0; i < codelength; i++) {
+            int randomIndex = random.nextInt(emailSecureChar.length());
+            codeBuilder.append(emailSecureChar.charAt(randomIndex));
+        }
+
+        //Hash token with SHA-256
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(codeBuilder.toString().getBytes());
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
+    }
+
     private String generateActiveToken(Account account) {
-        StringBuilder codeBuilder  = new StringBuilder();
+        StringBuilder codeBuilder = new StringBuilder();
         SecureRandom random = new SecureRandom();
         //tao ra 6 ki tu ngau nhien
         for (int i = 0; i < 6; i++) {
@@ -241,12 +300,12 @@ public class AuthenServiceImplement implements AuthenService {
         //luu token vao db
         String generatedToken = codeBuilder.toString();
         EmailToken token = EmailToken.builder()
-                .token(generatedToken)
-                .createdAt(LocalDateTime.now())
-                .expiredAt(LocalDateTime.now().plusMinutes(5))
-                .revokedToken(false)
-                .account(account)
-                .build();
+            .token(generatedToken)
+            .createdAt(LocalDateTime.now())
+            .expiredAt(LocalDateTime.now().plusMinutes(5))
+            .revokedToken(false)
+            .account(account)
+            .build();
         emailTokenRepository.save(token);
         return generatedToken;
     }
@@ -264,13 +323,13 @@ public class AuthenServiceImplement implements AuthenService {
 
     private void saveUserToken(Account account, String jwtAccessToken, String jwtRefreshToken) {
         var token = Token.builder()
-                .account(account)
-                .accessToken(jwtAccessToken)
-                .refreshToken(jwtRefreshToken)
-                .tokenType(TokenType.BEARER)
-                .revoked(false)
-                .expired(false)
-                .build();
+            .account(account)
+            .accessToken(jwtAccessToken)
+            .refreshToken(jwtRefreshToken)
+            .tokenType(TokenType.BEARER)
+            .revoked(false)
+            .expired(false)
+            .build();
         tokenRepository.save(token);
     }
 
