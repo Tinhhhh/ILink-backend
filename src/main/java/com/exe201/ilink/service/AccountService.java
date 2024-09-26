@@ -10,4 +10,5 @@ public interface AccountService {
     Account getCurrentAccountInfo(HttpServletRequest request);
 
     void changePassword(ChangePasswordRequest changePasswordRequest, HttpServletRequest request);
+
 }

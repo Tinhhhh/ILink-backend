@@ -64,4 +64,6 @@ public class AccountController {
         accountService.changePassword(changePasswordRequest, request);
         return "Password changed successfully";
     }
+
+
 }

@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 
+import java.security.NoSuchAlgorithmException;
+
 public interface AuthenService {
     void register(RegistrationRequest request) throws MessagingException;
 
@@ -20,4 +22,7 @@ public interface AuthenService {
 
     AuthenticationResponse refreshToken(HttpServletRequest request, HttpServletResponse response);
 
+    void forgotPassword(String email) throws NoSuchAlgorithmException, MessagingException;
+
+    void resetPassword(String email, String token);
 }

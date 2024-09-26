@@ -119,16 +119,16 @@ public class EmailServiceImplement implements EmailService {
 
     @Override
     @Async
-    public void sendMimeMessageWithHtml(String name, String to, String code) throws MessagingException {
+    public void sendMimeMessageWithHtml(String name, String to, String content, String template, String subject) throws MessagingException {
         try {
             String senderNickName = "Customer Service Team at Souvi";
             Context context = new Context();
             context.setVariable("username", name);
-            context.setVariable("activation_code", code);
-            String text = templateEngine.process(EmailTemplateName.ACTIVATE_ACCOUNT.getName(), context);
+            context.setVariable("content", content);
+            String text = templateEngine.process(template, context);
             MimeMessage message = getMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF_8_CODING);
-            helper.setSubject(NEW_USER_ACCOUNT_ACTIVATION);
+            helper.setSubject(subject);
             helper.setPriority(1);
             helper.setFrom(sender,senderNickName);
             helper.setTo(to);
@@ -144,7 +144,4 @@ public class EmailServiceImplement implements EmailService {
         return mailSender.createMimeMessage();
     }
 
-    public String getContentId(String filename){
-        return "<" + filename + ">";
-    }
 }

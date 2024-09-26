@@ -4,7 +4,6 @@ import com.exe201.ilink.model.entity.Account;
 import com.exe201.ilink.model.exception.ILinkException;
 import com.exe201.ilink.model.payload.dto.request.ChangePasswordRequest;
 import com.exe201.ilink.repository.AccountRepository;
-import com.exe201.ilink.repository.TokenRepository;
 import com.exe201.ilink.sercurity.JwtTokenProvider;
 import com.exe201.ilink.service.AccountService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 public class AccountServiceImplement implements AccountService {
 
     private final AccountRepository accountRepository;
-    private final TokenRepository tokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
@@ -48,8 +46,8 @@ public class AccountServiceImplement implements AccountService {
     public void changePassword(ChangePasswordRequest changePasswordRequest, HttpServletRequest request) {
         Account account = getCurrentAccountInfo(request);
 
-        if (!account.getPassword().equals(changePasswordRequest.getOldPassword())) {
-            throw new ILinkException(HttpStatus.BAD_REQUEST, "New password and old password is not match");
+        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), account.getPassword())){
+            throw new ILinkException(HttpStatus.BAD_REQUEST, "Your old password is incorrect");
         }
         account.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         accountRepository.save(account);
