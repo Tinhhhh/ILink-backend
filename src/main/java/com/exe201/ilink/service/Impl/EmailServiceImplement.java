@@ -121,7 +121,7 @@ public class EmailServiceImplement implements EmailService {
     @Async
     public void sendMimeMessageWithHtml(String name, String to, String code) throws MessagingException {
         try {
-            String senderNickName = "Customer Service Team at ILink";
+            String senderNickName = "Customer Service Team at Souvi";
             Context context = new Context();
             context.setVariable("username", name);
             context.setVariable("activation_code", code);

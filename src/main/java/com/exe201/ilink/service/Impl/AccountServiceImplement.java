@@ -1,7 +1,8 @@
 package com.exe201.ilink.service.Impl;
 
-import com.exe201.ilink.model.exception.CustomSuccessHandler;
 import com.exe201.ilink.model.entity.Account;
+import com.exe201.ilink.model.exception.ILinkException;
+import com.exe201.ilink.model.payload.dto.request.ChangePasswordRequest;
 import com.exe201.ilink.repository.AccountRepository;
 import com.exe201.ilink.repository.TokenRepository;
 import com.exe201.ilink.sercurity.JwtTokenProvider;
@@ -10,7 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,10 +21,41 @@ public class AccountServiceImplement implements AccountService {
     private final AccountRepository accountRepository;
     private final TokenRepository tokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
-    public ResponseEntity<Object> getCurrentAccountInfo(HttpServletRequest request) {
+    public Account getCurrentAccountInfo(HttpServletRequest request) {
 
+        String token = extractTokenFormJWT(request);
+
+        //Extract Account Info
+        String userEmail = jwtTokenProvider.getUsername(token);
+        Account account = accountRepository.findByEmail(userEmail)
+                .orElse(null);
+
+        if (account == null && !jwtTokenProvider.validateToken(token)) {
+            throw new ILinkException(HttpStatus.BAD_REQUEST,"No account found with this token");
+        }
+
+        if (!jwtTokenProvider.isTokenValid(token, account.getEmail())) {
+            throw new ILinkException(HttpStatus.UNAUTHORIZED,"Token is invalid or is expired");
+        }
+
+        return account;
+    }
+
+    @Override
+    public void changePassword(ChangePasswordRequest changePasswordRequest, HttpServletRequest request) {
+        Account account = getCurrentAccountInfo(request);
+
+        if (!account.getPassword().equals(changePasswordRequest.getOldPassword())) {
+            throw new ILinkException(HttpStatus.BAD_REQUEST, "New password and old password is not match");
+        }
+        account.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+        accountRepository.save(account);
+    }
+
+    private String extractTokenFormJWT(HttpServletRequest request) {
         //Extract Token From Header
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         String token = null;
@@ -32,24 +64,8 @@ public class AccountServiceImplement implements AccountService {
         }
 
         if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No JWT found in request header");
+            throw new ILinkException(HttpStatus.UNAUTHORIZED ,"No JWT found in request header");
         }
-
-        //Extract Account Info
-        String userEmail = jwtTokenProvider.getUsername(token);
-        Account account = accountRepository.findByEmail(userEmail)
-                .orElse(null);
-
-        if (account == null && !jwtTokenProvider.validateToken(token)) {
-            ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No account found with this token");
-        }
-
-        if (!jwtTokenProvider.isTokenValid(token, account.getEmail())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token is invalid or is expired");
-        }
-
-        return CustomSuccessHandler.responseBuilder(HttpStatus.OK,
-                "Successfully retrieved user information",
-                account);
+        return token;
     }
 }

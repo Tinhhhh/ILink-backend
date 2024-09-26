@@ -61,7 +61,7 @@ public class AuthenServiceImplement implements AuthenService {
     @Override
     public void register(RegistrationRequest request) throws MessagingException {
          Role accountRole = roleRepository.findByRoleName("USER")
-                .orElseThrow(() -> new IllegalStateException("Role USER not found"));
+                .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR,"Role USER not found"));
         if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RegisterAccountExistedException("Account already exists");
         }
@@ -94,9 +94,9 @@ public class AuthenServiceImplement implements AuthenService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         Account account = accountRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new ILinkException("Authentication fails. Your authentication information is incorrect, please try again"));
+                .orElseThrow(() -> new ILinkException(HttpStatus.UNAUTHORIZED,"Authentication fails. Your authentication information is incorrect, please try again"));
         if (!account.isEnabled()) {
-            throw new ILinkException("Account is not Enabled. Please use the last activation code sent to your email to activate your account");
+            throw new ILinkException(HttpStatus.BAD_REQUEST,"Account is not Enabled. Please use the last activation code sent to your email to activate your account");
         }
 
         String accessToken = jwtTokenProvider.generateAccessToken(authentication);
@@ -156,12 +156,12 @@ public class AuthenServiceImplement implements AuthenService {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String jwtToken;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new ILinkException("No JWT token found in the request header");
+            throw new ILinkException(HttpStatus.UNAUTHORIZED,"No JWT token found in the request header");
         }
 
         jwtToken = authHeader.substring(7);
         Token token = tokenRepository.findByRefreshTokenAndRevokedFalseAndExpiredFalse(jwtToken)
-                .orElseThrow(() -> new ILinkException("Invalid access token. Access token is revoked or expired"));
+                .orElseThrow(() -> new ILinkException(HttpStatus.UNAUTHORIZED,"Invalid access token. Access token is revoked or expired"));
 
         if (token!=null){
             token.setExpired(true);
@@ -190,7 +190,7 @@ public class AuthenServiceImplement implements AuthenService {
         if (userEmail != null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
             Token token = tokenRepository.findByRefreshTokenAndRevokedFalseAndExpiredFalse(refreshToken)
-                    .orElseThrow(() -> new ILinkException("Invalid refresh token. Refresh token is revoked or expired"));
+                    .orElseThrow(() -> new ILinkException(HttpStatus.UNAUTHORIZED,"Invalid refresh token. Refresh token is revoked or expired"));
             if (!token.isRevoked() && !token.isExpired()) {
 
                 Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -200,7 +200,7 @@ public class AuthenServiceImplement implements AuthenService {
                 );
 
                 Account account = accountRepository.findByEmail(userEmail)
-                        .orElseThrow(() -> new ILinkException("Invalid user. User not found"));
+                        .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST,"Invalid user. User not found"));
 
                 revokeAllUserToken(account);
 
@@ -215,7 +215,7 @@ public class AuthenServiceImplement implements AuthenService {
                         .build();
 
             } else {
-                throw new ILinkException("Token is invalid or not exist");
+                throw new ILinkException(HttpStatus.BAD_REQUEST,"Token is invalid or not exist");
             }
         }
 

@@ -93,6 +93,9 @@ public class AuthController {
     public ResponseEntity<Object> refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Generate new Refresh Token and Access Token successfully", authService.refreshToken(request, response));
     }
+
+
+
 //
 //    @Operation(summary = "Social Login in to the system using Google (Mobile)", description = "Login into the system using Google. The response will include an access token and a refresh token")
 //    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successfully SignIn with Google", content = @Content(examples = @ExampleObject(value = """
