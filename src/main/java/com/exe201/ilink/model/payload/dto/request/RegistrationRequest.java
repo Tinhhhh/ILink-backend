@@ -2,6 +2,7 @@ package com.exe201.ilink.model.payload.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -45,5 +46,15 @@ public class RegistrationRequest {
     @NotEmpty(message = "Password cannot be blank")
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d).{8,16}$", message = "Minimum 8 characters, at least one uppercase letter and number")
     private String password;
+
+    @Schema(description = "Shop's name", example = "ILink shop")
+    private String shopName;
+
+    @Schema(description = "Shop's address", example = "123 Main St, Springfield")
+    @JsonProperty("shop_address")
+    private String shopAddress;
+
+    @Schema(description = "Register's role", example = "BUYER")
+    private String Role;
 
 }

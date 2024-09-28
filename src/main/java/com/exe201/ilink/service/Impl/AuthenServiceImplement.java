@@ -51,6 +51,7 @@ public class AuthenServiceImplement implements AuthenService {
     private final TokenRepository tokenRepository;
     private final CustomUserDetailsService userDetailsService;
     private final ResetPasswordTokenRepository resetPasswordTokenRepository;
+    private final ShopRepository shopRepository;
 
     @Value("${application.email.url}")
     private String url;
@@ -62,27 +63,15 @@ public class AuthenServiceImplement implements AuthenService {
 
     @Override
     public void register(RegistrationRequest request) throws MessagingException {
-        Role accountRole = roleRepository.findByRoleName("USER")
-            .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Role USER not found"));
-        if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RegisterAccountExistedException("Account already exists");
+
+        if (request.getRole().equals("BUYER")) {
+            accountRegisteration(request);
+        } if (request.getRole().equals("SELLER")) {
+            shopRegisterion(request);
+        } else {
+            throw new ILinkException(HttpStatus.BAD_REQUEST, "Register request fails. Role not found");
         }
 
-        Account account = Account.builder()
-            .firstName(request.getFirstName())
-            .lastName(request.getLastName())
-            .email(request.getEmail())
-            .address(request.getAddress())
-            .phone(request.getPhone())
-            .gender("")
-            .dob(null)
-            .password(passwordEncoder.encode(request.getPassword()))
-            .isLocked(false)
-            .isEnable(false)
-            .role(accountRole)
-            .build();
-        accountRepository.save(account);
-        sendValidationEmail(account);
     }
 
     @Override
@@ -154,15 +143,11 @@ public class AuthenServiceImplement implements AuthenService {
         }
 
         jwtToken = authHeader.substring(7);
-        Token token = tokenRepository.findByRefreshTokenAndRevokedFalseAndExpiredFalse(jwtToken)
-            .orElseThrow(() -> new ILinkException(HttpStatus.UNAUTHORIZED, "Invalid access token. Access token is revoked or expired"));
-
+        Token token = tokenRepository.findByAccessTokenAndRevokedFalseAndExpiredFalse(jwtToken).orElse(null);
         if (token != null) {
             token.setExpired(true);
             token.setRevoked(true);
             tokenRepository.save(token);
-            response.setStatus(HttpStatus.OK.value());
-            response.setContentType("text/plain");
         }
 
 
@@ -273,6 +258,13 @@ public class AuthenServiceImplement implements AuthenService {
 
     }
 
+    private void sendInformEmailToShopOwner(Account account) throws MessagingException {
+        emailService.sendMimeMessageWithHtml(
+            account.fullName(), account.getEmail(), "",
+            EmailTemplateName.INFORM_SHOP_OWNER.getName(), "Souvi has received your registration request");
+    }
+
+
     private String generateResetPasswordToken(int codelength) throws NoSuchAlgorithmException {
         StringBuilder codeBuilder = new StringBuilder();
         SecureRandom random = new SecureRandom();
@@ -331,6 +323,62 @@ public class AuthenServiceImplement implements AuthenService {
             .expired(false)
             .build();
         tokenRepository.save(token);
+    }
+
+    private void shopRegisterion(RegistrationRequest request) throws MessagingException {
+        Role accountRole = roleRepository.findByRoleName("SELLER")
+            .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Role SELLER not found"));
+        if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RegisterAccountExistedException("Account already exists");
+        }
+
+        Account account = Account.builder()
+            .firstName(request.getFirstName())
+            .lastName(request.getLastName())
+            .email(request.getEmail())
+            .address(request.getAddress())
+            .phone(request.getPhone())
+            .gender("")
+            .dob(null)
+            .password(passwordEncoder.encode(request.getPassword()))
+            .isLocked(false)
+            .isEnable(false)
+            .role(accountRole)
+            .build();
+        accountRepository.save(account);
+
+        Shop shop = Shop.builder()
+            .shopName(request.getShopName())
+            .address(request.getShopAddress())
+            .account(account)
+            .build();
+        shopRepository.save(shop);
+
+        sendInformEmailToShopOwner(account);
+    }
+
+    private void accountRegisteration(RegistrationRequest request) throws MessagingException {
+        Role accountRole = roleRepository.findByRoleName("BUYER")
+            .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Role BUYER not found"));
+        if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RegisterAccountExistedException("Account already exists");
+        }
+
+        Account account = Account.builder()
+            .firstName(request.getFirstName())
+            .lastName(request.getLastName())
+            .email(request.getEmail())
+            .address(request.getAddress())
+            .phone(request.getPhone())
+            .gender("")
+            .dob(null)
+            .password(passwordEncoder.encode(request.getPassword()))
+            .isLocked(false)
+            .isEnable(false)
+            .role(accountRole)
+            .build();
+        accountRepository.save(account);
+        sendValidationEmail(account);
     }
 
 

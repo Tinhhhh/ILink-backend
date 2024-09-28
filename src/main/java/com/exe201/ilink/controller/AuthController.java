@@ -72,16 +72,6 @@ public class AuthController {
         return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Account verification successfully", "Your account has been activated successfully");
     }
 
-
-    @Operation(summary = "Logout of the system", description = "Logout of the system, bearer token (refresh token) is required")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Logged out successfully"), @ApiResponse(responseCode = "401", description = "No JWT token found in the request header")})
-    @PostMapping("/logout")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Object> logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        authService.logout(request, response, authentication);
-        return ResponseEntity.ok().body("Logged out successfully");
-    }
-
     @Operation(summary = "Refresh token if expired", description = "If the current JWT Refresh Token has expired or been revoked, you can refresh it using this method")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Generate new Refresh Token and Access Token successfully", content = @Content(examples = @ExampleObject(value = """
                 {

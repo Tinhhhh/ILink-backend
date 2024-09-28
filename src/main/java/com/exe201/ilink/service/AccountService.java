@@ -5,10 +5,13 @@ import com.exe201.ilink.model.payload.dto.request.ChangePasswordRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 
+import java.util.UUID;
+
 public interface AccountService {
 
     Account getCurrentAccountInfo(HttpServletRequest request);
 
     void changePassword(ChangePasswordRequest changePasswordRequest, HttpServletRequest request);
 
+    void updateAccountProfilePicture(UUID id, String imageURLMain);
 }

@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class AccountServiceImplement implements AccountService {
@@ -51,6 +53,20 @@ public class AccountServiceImplement implements AccountService {
         }
         account.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         accountRepository.save(account);
+    }
+
+    @Override
+    public void updateAccountProfilePicture(UUID id, String imageURLMain) {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "No account found with this id"));
+
+        if (imageURLMain == null) {
+            throw new ILinkException(HttpStatus.BAD_REQUEST, "Image URL is null");
+        }
+
+        account.setAvatar(imageURLMain);
+        accountRepository.save(account);
+
     }
 
     private String extractTokenFormJWT(HttpServletRequest request) {
