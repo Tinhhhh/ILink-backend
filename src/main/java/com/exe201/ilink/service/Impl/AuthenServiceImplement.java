@@ -37,6 +37,9 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
 
+import static com.exe201.ilink.model.enums.RoleName.BUYER;
+import static com.exe201.ilink.model.enums.RoleName.SELLER;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenServiceImplement implements AuthenService {
@@ -64,12 +67,15 @@ public class AuthenServiceImplement implements AuthenService {
     @Override
     public void register(RegistrationRequest request) throws MessagingException {
 
-        if (request.getRole().equals("BUYER")) {
-            accountRegisteration(request);
-        } if (request.getRole().equals("SELLER")) {
+        roleRepository.findByRoleName(request.getRole())
+            .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Registration fails, role not found !"));
+
+        if (request.getRole().equals(SELLER.getRoleName())) {
             shopRegisterion(request);
+        } else if (request.getRole().equals(BUYER.getRoleName())){
+            accountRegisteration(request);
         } else {
-            throw new ILinkException(HttpStatus.BAD_REQUEST, "Register request fails. Role not found");
+            throw new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Register fails, please contact the administrator for more information");
         }
 
     }
@@ -87,6 +93,11 @@ public class AuthenServiceImplement implements AuthenService {
         Account account = accountRepository.findByEmail(request.getEmail())
             .orElseThrow(() -> new ILinkException(HttpStatus.UNAUTHORIZED, "Authentication fails. Your authentication information is incorrect, please try again"));
         if (!account.isEnabled()) {
+
+            if (account.getRole().getRoleName().equals(SELLER.getRoleName())) {
+                throw new ILinkException(HttpStatus.BAD_REQUEST, "Your shop is currently pending. Please wait for the administrator to approve your registration request. Or contact the administrator for more information");
+            }
+
             throw new ILinkException(HttpStatus.BAD_REQUEST, "Account is not Enabled. Please use the last activation code sent to your email to activate your account");
         }
 
@@ -135,7 +146,7 @@ public class AuthenServiceImplement implements AuthenService {
     }
 
     @Override
-    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+    public void logout(HttpServletRequest request) {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String jwtToken;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -327,7 +338,7 @@ public class AuthenServiceImplement implements AuthenService {
 
     private void shopRegisterion(RegistrationRequest request) throws MessagingException {
         Role accountRole = roleRepository.findByRoleName("SELLER")
-            .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Role SELLER not found"));
+            .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "RoleName SELLER not found"));
         if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RegisterAccountExistedException("Account already exists");
         }
@@ -359,7 +370,7 @@ public class AuthenServiceImplement implements AuthenService {
 
     private void accountRegisteration(RegistrationRequest request) throws MessagingException {
         Role accountRole = roleRepository.findByRoleName("BUYER")
-            .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Role BUYER not found"));
+            .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "RoleName BUYER not found"));
         if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RegisterAccountExistedException("Account already exists");
         }

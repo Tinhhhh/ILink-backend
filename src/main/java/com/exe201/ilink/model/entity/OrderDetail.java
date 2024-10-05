@@ -31,8 +31,9 @@ public class OrderDetail {
     @JoinColumn(name = "order_id")
     private CustomerOrder order;
 
-    @OneToMany(mappedBy = "orderDetail", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Product> products;
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 
 
 }

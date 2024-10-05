@@ -38,6 +38,7 @@ public class SercurityConfig {
                 .cors(withDefaults())
                 .authorizeHttpRequests(request -> request.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/auth/**").permitAll()
                         .requestMatchers("/account/**").hasAnyAuthority("BUYER","SELLER")
+                        .requestMatchers("/product/**","/shop/**","/post/**").hasAnyAuthority("SELLER","MANAGER")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)

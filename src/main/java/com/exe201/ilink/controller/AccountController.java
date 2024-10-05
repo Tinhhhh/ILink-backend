@@ -1,6 +1,7 @@
 package com.exe201.ilink.controller;
 
 import com.exe201.ilink.model.exception.CustomSuccessHandler;
+import com.exe201.ilink.model.payload.dto.request.AccountProfile;
 import com.exe201.ilink.model.payload.dto.request.ChangePasswordRequest;
 import com.exe201.ilink.service.AccountService;
 import com.exe201.ilink.service.AuthenService;
@@ -12,17 +13,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -66,15 +67,14 @@ public class AccountController {
     })
     @GetMapping("/profile")
     public ResponseEntity<Object> getCurrentAccountInfo(HttpServletRequest request) {
-        return CustomSuccessHandler.responseBuilder(HttpStatus.OK,
+        return CustomSuccessHandler.responseBuilderWithData(HttpStatus.OK,
             "Successfully retrieved user information", accountService.getCurrentAccountInfo(request));
     }
 
     @PostMapping("/change-password")
-    @ResponseStatus(HttpStatus.OK)
-    public String changePassword(@RequestBody ChangePasswordRequest changePasswordRequest, HttpServletRequest request) {
+    public Map<String, Object> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest, HttpServletRequest request) {
         accountService.changePassword(changePasswordRequest, request);
-        return "Password changed successfully";
+        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Password changed successfully");
     }
 
     @Operation(
@@ -86,23 +86,36 @@ public class AccountController {
         @ApiResponse(responseCode = "500", description = "Failed to update user profile picture"),
     })
     @PostMapping(value = "/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @ResponseStatus(HttpStatus.OK)
-    public String updateUserProfilePicture(@NotNull UUID id,
+    public Map<String, Object> updateUserProfilePicture(@NotNull @RequestParam(value = "id") UUID id,
                                            @RequestParam(value = "profile_pic", required = false) MultipartFile profilePicture) throws IOException {
 
         String imageURLMain = cloudinaryService.uploadFile(profilePicture);
         accountService.updateAccountProfilePicture(id, imageURLMain);
-        return "User profile picture updated successfully";
+        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "User profile picture updated successfully");
     }
 
 
     @Operation(summary = "Logout of the system", description = "Logout of the system, bearer token (refresh token) is required")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Logged out successfully"), @ApiResponse(responseCode = "401", description = "No JWT token found in the request header")})
     @PostMapping("/logout")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Object> logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        authService.logout(request, response, authentication);
-        return ResponseEntity.ok().body("Logged out successfully");
+    public Map<String, Object> logout(HttpServletRequest request) {
+        authService.logout(request);
+        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Logged out successfully");
+    }
+
+    @Operation(
+        summary = "Update user profile information",
+        description = "Update current user information after logging into the system.",
+        tags = {"Account"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Account information update successfully"),
+        @ApiResponse(responseCode = "500", description = "No JWT token found in the request header"),
+    })
+    @PutMapping(value = "/profile")
+    public Map<String, Object> updateProfile(@NotNull @RequestParam(value = "id") UUID id,
+                                @RequestBody @Valid AccountProfile accountProfile) {
+        accountService.updateAccountInfo(id, accountProfile);
+        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Account profile information updated successfully");
     }
 
 
