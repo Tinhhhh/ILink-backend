@@ -18,7 +18,7 @@ public interface AuthenService {
 
     void activeAccount(String token, HttpServletResponse response) throws MessagingException;
 
-    void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication);
+    void logout(HttpServletRequest request);
 
     AuthenticationResponse refreshToken(HttpServletRequest request, HttpServletResponse response);
 

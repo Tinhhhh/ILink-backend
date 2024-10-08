@@ -19,11 +19,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("auth")
@@ -42,7 +42,7 @@ public class AuthController {
     @PostMapping("/registration")
     public ResponseEntity<Object> Register(@RequestBody @Valid RegistrationRequest request) throws MessagingException {
         authService.register(request);
-        return CustomSuccessHandler.responseBuilder(HttpStatus.ACCEPTED, "Successfully Register", "Please check your email for account verification.");
+        return CustomSuccessHandler.responseBuilderWithData(HttpStatus.ACCEPTED, "Successfully Register", "Please check your email for account verification.");
     }
 
     @Operation(summary = "Login in to the system", description = "Login into the system requires all information to be provided, " + "and validations will be performed. The response will include an access token and a refresh token")
@@ -59,27 +59,16 @@ public class AuthController {
     @PostMapping("/signin")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> SignIn (@RequestBody @Valid AuthenticationRequest request){
-        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Successfully Sign in", authService.authenticate(request));
+        return CustomSuccessHandler.responseBuilderWithData(HttpStatus.OK, "Successfully Sign in", authService.authenticate(request));
     }
 
     @Operation(summary = "Activate account", description = "Activate account after registration successfully, the user will need to enter the 6-digit confirmation code sent to their email to activate the account.")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Account verification successfully"),
             @ApiResponse(responseCode = "400", description = "Activation code has expired. A new code has been sent to your email address"),})
     @GetMapping("/activation")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> accountActivation(@RequestParam String code, HttpServletResponse response) throws MessagingException {
         authService.activeAccount(code, response);
-        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Account verification successfully", "Your account has been activated successfully");
-    }
-
-
-    @Operation(summary = "Logout of the system", description = "Logout of the system, bearer token (refresh token) is required")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Logged out successfully"), @ApiResponse(responseCode = "401", description = "No JWT token found in the request header")})
-    @PostMapping("/logout")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Object> logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        authService.logout(request, response, authentication);
-        return ResponseEntity.ok().body("Logged out successfully");
+        return CustomSuccessHandler.responseBuilderWithData(HttpStatus.OK, "Account verification successfully", "Your account has been activated successfully");
     }
 
     @Operation(summary = "Refresh token if expired", description = "If the current JWT Refresh Token has expired or been revoked, you can refresh it using this method")
@@ -90,23 +79,20 @@ public class AuthController {
                }
             """))), @ApiResponse(responseCode = "401", description = "No JWT token found in the request header"), @ApiResponse(responseCode = "401", description = "JWT token has expired and revoked")})
     @PostMapping("/refresh-token")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Generate new Refresh Token and Access Token successfully", authService.refreshToken(request, response));
+        return CustomSuccessHandler.responseBuilderWithData(HttpStatus.OK, "Generate new Refresh Token and Access Token successfully", authService.refreshToken(request, response));
     }
 
     @PostMapping("/forgot-password")
-    @ResponseStatus(HttpStatus.OK)
-    public String forgotPassword(@RequestParam String email) throws MessagingException, NoSuchAlgorithmException {
+    public Map<String, Object> forgotPassword(@RequestParam String email) throws MessagingException, NoSuchAlgorithmException {
         authService.forgotPassword(email);
-        return "Password reset link has been sent to your email";
+        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Please check your email for password reset link");
     }
 
     @PostMapping("/reset-password")
-    @ResponseStatus(HttpStatus.OK)
-    public String resetPassword(@RequestParam(value = "Password") String password, @RequestParam String token) {
+    public Map<String, Object> resetPassword(@RequestParam(value = "Password") String password, @RequestParam String token) {
         authService.resetPassword(password, token);
-        return "Reset password successfully";
+        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Password reset successfully");
     }
 
 

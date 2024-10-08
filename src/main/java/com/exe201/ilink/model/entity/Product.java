@@ -45,14 +45,19 @@ public class Product {
     private ProductCategory category;
 
     @ManyToOne
-    @JoinColumn(name = "customer_order_id")
-    private OrderDetail orderDetail;
+    @JoinColumn(name = "shop_id")
+    private Shop shop;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<OrderDetail> orderDetails;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Post> posts;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Feedback> feedbacks;
+
+
 
 
 

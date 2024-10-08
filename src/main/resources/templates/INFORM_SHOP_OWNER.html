@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Souvi Verification Code</title>
+    <title>KGrill Notification</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #f7f7f7;
             margin: 0;
             padding: 0;
         }
@@ -19,62 +19,59 @@
             max-width: 600px;
             margin: 0 auto;
             background-color: #ffffff;
-            padding: 20px;
-            border: 1px solid #dddddd;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .header {
             text-align: center;
-            padding: 20px 0;
+            padding-bottom: 20px;
         }
 
         .header img {
-            max-width: 200px; /* Increase the size of the logo */
+            max-width: 180px;
         }
 
         .content {
             text-align: center;
             font-size: 16px;
-            color: #333333;
+            color: #333;
         }
 
         .content h2 {
-            font-size: 24px;
-            margin: 20px 0;
+            font-size: 28px;
+            margin: 10px 0;
+            color: #ff6347;
         }
 
-        .verification-code {
+        .content p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+
+        .button {
             display: inline-block;
-            margin: 20px 0;
+            margin-top: 20px;
             padding: 15px 30px;
-            font-size: 32px;
-            font-weight: bold;
-            color: #ffffff;
-            border: 2px solid #ff6347;
-            border-radius: 5px;
-            background-color: #ff6347; /* Change color to #ff6347 */
-            letter-spacing: 5px;
-        }
-
-        .verification-link {
-            display: inline-block;
-            margin: 20px 0;
-            padding: 10px 20px;
             font-size: 16px;
             font-weight: bold;
-            color: #ff6347; /* Change text color to #ff6347 */
-            border: 2px solid #ff6347; /* Change border color to #ff6347 */
-            border-radius: 5px;
-            background-color: transparent; /* Set background to transparent */
+            color: #ffffff;
+            background-color: #ff6347;
+            border-radius: 4px;
             text-decoration: none;
+        }
+
+        .button:hover {
+            background-color: #e55b3c;
         }
 
         .footer {
             text-align: center;
             font-size: 14px;
             color: #888888;
-            margin-top: 20px;
+            margin-top: 30px;
         }
 
         .footer a {
@@ -91,6 +88,16 @@
             width: 24px;
             margin: 0 10px;
         }
+
+        @media screen and (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .button {
+                padding: 12px 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -99,11 +106,9 @@
         <img src="https://i.imgur.com/n8FA1lf.png" alt="Souvi Logo">
     </div>
     <div class="content">
-        <h2>Mã Đăng Nhập</h2>
-        <p th:text="'Xin chào '+ ${username}+ ','"></p>
-        <p>Đây là mã xác minh đăng nhập của bạn:</p>
-        <div class="verification-code"><span th:text="${content}"></span></div>
-        <p>Nếu bạn không yêu cầu mã này, hãy thay đổi mật khẩu của bạn ngay lập tức để ngăn chặn truy cập trái phép.</p>
+        <h2>Thông báo đăng ký cửa hàng tại Souvi</h2>
+        <p>Xin chào <span th:text="${username}"></span>,</p>
+        <p>Chúng tôi đã nhận được yêu cầu của bạn, chúng tôi sẽ xác thực lại thông tin và thông báo lại cho bạn khi quá trình xác thực hoàn tất trong thời gian sớm nhất. </p>
     </div>
     <div class="footer">
         <div class="social-icons">
@@ -114,7 +119,7 @@
         </div>
         <p><a href="#">Chính sách bảo mật</a> | <a href="#">Hỗ trợ</a> | <a href="#">Điều khoản dịch vụ</a></p>
         <p>Cảm ơn bạn đã chọn chúng tôi!</p>
-        <p>© 2024 ILink. Tất cả các quyền được bảo lưu.</p>
+        <p>© 2024 Souvi. Tất cả các quyền được bảo lưu.</p>
     </div>
 </div>
 </body>

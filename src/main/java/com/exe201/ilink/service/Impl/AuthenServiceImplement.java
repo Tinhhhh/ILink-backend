@@ -37,6 +37,9 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
 
+import static com.exe201.ilink.model.enums.RoleName.BUYER;
+import static com.exe201.ilink.model.enums.RoleName.SELLER;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenServiceImplement implements AuthenService {
@@ -51,6 +54,7 @@ public class AuthenServiceImplement implements AuthenService {
     private final TokenRepository tokenRepository;
     private final CustomUserDetailsService userDetailsService;
     private final ResetPasswordTokenRepository resetPasswordTokenRepository;
+    private final ShopRepository shopRepository;
 
     @Value("${application.email.url}")
     private String url;
@@ -62,27 +66,18 @@ public class AuthenServiceImplement implements AuthenService {
 
     @Override
     public void register(RegistrationRequest request) throws MessagingException {
-        Role accountRole = roleRepository.findByRoleName("USER")
-            .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Role USER not found"));
-        if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RegisterAccountExistedException("Account already exists");
+
+        roleRepository.findByRoleName(request.getRole())
+            .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Registration fails, role not found !"));
+
+        if (request.getRole().equals(SELLER.getRoleName())) {
+            shopRegisterion(request);
+        } else if (request.getRole().equals(BUYER.getRoleName())){
+            accountRegisteration(request);
+        } else {
+            throw new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Register fails, please contact the administrator for more information");
         }
 
-        Account account = Account.builder()
-            .firstName(request.getFirstName())
-            .lastName(request.getLastName())
-            .email(request.getEmail())
-            .address(request.getAddress())
-            .phone(request.getPhone())
-            .gender("")
-            .dob(null)
-            .password(passwordEncoder.encode(request.getPassword()))
-            .isLocked(false)
-            .isEnable(false)
-            .role(accountRole)
-            .build();
-        accountRepository.save(account);
-        sendValidationEmail(account);
     }
 
     @Override
@@ -98,6 +93,11 @@ public class AuthenServiceImplement implements AuthenService {
         Account account = accountRepository.findByEmail(request.getEmail())
             .orElseThrow(() -> new ILinkException(HttpStatus.UNAUTHORIZED, "Authentication fails. Your authentication information is incorrect, please try again"));
         if (!account.isEnabled()) {
+
+            if (account.getRole().getRoleName().equals(SELLER.getRoleName())) {
+                throw new ILinkException(HttpStatus.BAD_REQUEST, "Your shop is currently pending. Please wait for the administrator to approve your registration request. Or contact the administrator for more information");
+            }
+
             throw new ILinkException(HttpStatus.BAD_REQUEST, "Account is not Enabled. Please use the last activation code sent to your email to activate your account");
         }
 
@@ -146,7 +146,7 @@ public class AuthenServiceImplement implements AuthenService {
     }
 
     @Override
-    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+    public void logout(HttpServletRequest request) {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String jwtToken;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -154,15 +154,11 @@ public class AuthenServiceImplement implements AuthenService {
         }
 
         jwtToken = authHeader.substring(7);
-        Token token = tokenRepository.findByRefreshTokenAndRevokedFalseAndExpiredFalse(jwtToken)
-            .orElseThrow(() -> new ILinkException(HttpStatus.UNAUTHORIZED, "Invalid access token. Access token is revoked or expired"));
-
+        Token token = tokenRepository.findByAccessTokenAndRevokedFalseAndExpiredFalse(jwtToken).orElse(null);
         if (token != null) {
             token.setExpired(true);
             token.setRevoked(true);
             tokenRepository.save(token);
-            response.setStatus(HttpStatus.OK.value());
-            response.setContentType("text/plain");
         }
 
 
@@ -273,6 +269,13 @@ public class AuthenServiceImplement implements AuthenService {
 
     }
 
+    private void sendInformEmailToShopOwner(Account account) throws MessagingException {
+        emailService.sendMimeMessageWithHtml(
+            account.fullName(), account.getEmail(), "",
+            EmailTemplateName.INFORM_SHOP_OWNER.getName(), "Souvi has received your registration request");
+    }
+
+
     private String generateResetPasswordToken(int codelength) throws NoSuchAlgorithmException {
         StringBuilder codeBuilder = new StringBuilder();
         SecureRandom random = new SecureRandom();
@@ -331,6 +334,62 @@ public class AuthenServiceImplement implements AuthenService {
             .expired(false)
             .build();
         tokenRepository.save(token);
+    }
+
+    private void shopRegisterion(RegistrationRequest request) throws MessagingException {
+        Role accountRole = roleRepository.findByRoleName("SELLER")
+            .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "RoleName SELLER not found"));
+        if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RegisterAccountExistedException("Account already exists");
+        }
+
+        Account account = Account.builder()
+            .firstName(request.getFirstName())
+            .lastName(request.getLastName())
+            .email(request.getEmail())
+            .address(request.getAddress())
+            .phone(request.getPhone())
+            .gender("")
+            .dob(null)
+            .password(passwordEncoder.encode(request.getPassword()))
+            .isLocked(false)
+            .isEnable(false)
+            .role(accountRole)
+            .build();
+        accountRepository.save(account);
+
+        Shop shop = Shop.builder()
+            .shopName(request.getShopName())
+            .address(request.getShopAddress())
+            .account(account)
+            .build();
+        shopRepository.save(shop);
+
+        sendInformEmailToShopOwner(account);
+    }
+
+    private void accountRegisteration(RegistrationRequest request) throws MessagingException {
+        Role accountRole = roleRepository.findByRoleName("BUYER")
+            .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "RoleName BUYER not found"));
+        if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RegisterAccountExistedException("Account already exists");
+        }
+
+        Account account = Account.builder()
+            .firstName(request.getFirstName())
+            .lastName(request.getLastName())
+            .email(request.getEmail())
+            .address(request.getAddress())
+            .phone(request.getPhone())
+            .gender("")
+            .dob(null)
+            .password(passwordEncoder.encode(request.getPassword()))
+            .isLocked(false)
+            .isEnable(false)
+            .role(accountRole)
+            .build();
+        accountRepository.save(account);
+        sendValidationEmail(account);
     }
 
 

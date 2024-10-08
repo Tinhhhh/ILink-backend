@@ -37,14 +37,15 @@ public class SercurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(withDefaults())
                 .authorizeHttpRequests(request -> request.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/auth/**").permitAll()
-                        .requestMatchers("/account/**").hasAuthority("USER")
+                        .requestMatchers("/account/**").hasAnyAuthority("BUYER","SELLER")
+                        .requestMatchers("/product/**","/shop/**","/post/**").hasAnyAuthority("SELLER","MANAGER")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
-        http.logout(logout -> logout.logoutUrl("/api/v1/auth/logout")
+        http.logout(logout -> logout.logoutUrl("api/v1/account/logout")
                 .addLogoutHandler(logoutHandler)
                 .logoutSuccessHandler((request, response, authentication)
                         -> SecurityContextHolder.clearContext()));
