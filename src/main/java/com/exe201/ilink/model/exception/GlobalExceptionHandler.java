@@ -3,6 +3,7 @@ package com.exe201.ilink.model.exception;
 import com.exe201.ilink.Util.DateUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -91,6 +92,21 @@ public class GlobalExceptionHandler {
                                 .message(exception.getMessage())
                                 .build()
                 );
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ExceptionResponse> handleAuthenticationException(AuthenticationException exception) {
+        return  ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED.value())
+            .body(
+                ExceptionResponse.builder()
+                    .httpStatus(HttpStatus.UNAUTHORIZED.value())
+                    .timestamp(DateUtil.formatTimestamp(new Date()))
+                    .message("Authentication failed. Please check your credentials.")
+                    .error(exception.getMessage())
+                    .build()
+            );
+
     }
 
 }

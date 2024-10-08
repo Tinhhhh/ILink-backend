@@ -1,6 +1,6 @@
 package com.exe201.ilink.controller;
 
-import com.exe201.ilink.model.exception.CustomSuccessHandler;
+import com.exe201.ilink.model.exception.ResponseBuilder;
 import com.exe201.ilink.model.exception.ExceptionResponse;
 import com.exe201.ilink.model.payload.dto.request.AuthenticationRequest;
 import com.exe201.ilink.model.payload.dto.request.RegistrationRequest;
@@ -42,7 +42,7 @@ public class AuthController {
     @PostMapping("/registration")
     public ResponseEntity<Object> Register(@RequestBody @Valid RegistrationRequest request) throws MessagingException {
         authService.register(request);
-        return CustomSuccessHandler.responseBuilderWithData(HttpStatus.ACCEPTED, "Successfully Register", "Please check your email for account verification.");
+        return ResponseBuilder.responseBuilderWithData(HttpStatus.ACCEPTED, "Successfully Register", "Please check your email for account verification.");
     }
 
     @Operation(summary = "Login in to the system", description = "Login into the system requires all information to be provided, " + "and validations will be performed. The response will include an access token and a refresh token")
@@ -59,7 +59,7 @@ public class AuthController {
     @PostMapping("/signin")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> SignIn (@RequestBody @Valid AuthenticationRequest request){
-        return CustomSuccessHandler.responseBuilderWithData(HttpStatus.OK, "Successfully Sign in", authService.authenticate(request));
+        return ResponseBuilder.responseBuilderWithData(HttpStatus.OK, "Successfully Sign in", authService.authenticate(request));
     }
 
     @Operation(summary = "Activate account", description = "Activate account after registration successfully, the user will need to enter the 6-digit confirmation code sent to their email to activate the account.")
@@ -68,7 +68,7 @@ public class AuthController {
     @GetMapping("/activation")
     public ResponseEntity<Object> accountActivation(@RequestParam String code, HttpServletResponse response) throws MessagingException {
         authService.activeAccount(code, response);
-        return CustomSuccessHandler.responseBuilderWithData(HttpStatus.OK, "Account verification successfully", "Your account has been activated successfully");
+        return ResponseBuilder.responseBuilderWithData(HttpStatus.OK, "Account verification successfully", "Your account has been activated successfully");
     }
 
     @Operation(summary = "Refresh token if expired", description = "If the current JWT Refresh Token has expired or been revoked, you can refresh it using this method")
@@ -80,19 +80,19 @@ public class AuthController {
             """))), @ApiResponse(responseCode = "401", description = "No JWT token found in the request header"), @ApiResponse(responseCode = "401", description = "JWT token has expired and revoked")})
     @PostMapping("/refresh-token")
     public ResponseEntity<Object> refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        return CustomSuccessHandler.responseBuilderWithData(HttpStatus.OK, "Generate new Refresh Token and Access Token successfully", authService.refreshToken(request, response));
+        return ResponseBuilder.responseBuilderWithData(HttpStatus.OK, "Generate new Refresh Token and Access Token successfully", authService.refreshToken(request, response));
     }
 
     @PostMapping("/forgot-password")
-    public Map<String, Object> forgotPassword(@RequestParam String email) throws MessagingException, NoSuchAlgorithmException {
+    public ResponseEntity<Object> forgotPassword(@RequestParam String email) throws MessagingException, NoSuchAlgorithmException {
         authService.forgotPassword(email);
-        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Please check your email for password reset link");
+        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Please check your email for password reset link");
     }
 
     @PostMapping("/reset-password")
-    public Map<String, Object> resetPassword(@RequestParam(value = "Password") String password, @RequestParam String token) {
+    public ResponseEntity<Object> resetPassword(@RequestParam(value = "Password") String password, @RequestParam String token) {
         authService.resetPassword(password, token);
-        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Password reset successfully");
+        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Password reset successfully");
     }
 
 
@@ -124,7 +124,7 @@ public class AuthController {
 //    @CrossOrigin(origins = "*")
 //    @ResponseStatus(HttpStatus.OK)
 //    public ResponseEntity<?> googleSignIn(@RequestBody GoogleAuthenticationRequest request) throws JOSEException {
-//        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Successfully SignIn with Google", authService.findOrCreateUser(request));
+//        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Successfully SignIn with Google", authService.findOrCreateUser(request));
 //    }
 
 }

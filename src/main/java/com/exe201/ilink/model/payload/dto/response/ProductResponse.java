@@ -32,11 +32,18 @@ public class ProductResponse {
     @Schema(description = "Product's stock", example = "10")
     private int stock;
 
-    @Schema(description = "Product's category id", example = "1")
-    private ProductCategory category;
+    @Schema(description = "Product's category id", example = "Candle")
+    @JsonProperty("category_name")
+    private String categoryName;
 
     @Schema(description = "Product's shop id", example = "1")
-    private Shop shop;
+    private String shopId;
+
+    @Schema(description = "Product's shop name", example = "Souvi")
+    @JsonProperty("shop_name")
+    private String shopName;
+
+
 
 
 }

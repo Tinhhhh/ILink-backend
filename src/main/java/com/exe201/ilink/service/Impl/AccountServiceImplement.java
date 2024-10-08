@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -64,7 +65,6 @@ public class AccountServiceImplement implements AccountService {
         if (imageURLMain == null) {
             throw new ILinkException(HttpStatus.BAD_REQUEST, "Image URL is null");
         }
-
         account.setAvatar(imageURLMain);
         accountRepository.save(account);
 

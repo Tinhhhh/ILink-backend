@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
 
-    @Query("SELECT p FROM Product p WHERE p.shop.shopId = :shopId")
+    @Query("SELECT p FROM Product p WHERE p.shop.shopId = :shopId and p.status = 'ACTIVE'")
     Page<Product> findByShopId(Long shopId, Pageable pageable);
 }
