@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class ILinkException extends RuntimeException  {
+public class ILinkException extends RuntimeException {
 
     private HttpStatus httpStatus;
 

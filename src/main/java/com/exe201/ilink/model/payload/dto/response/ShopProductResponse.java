@@ -1,6 +1,5 @@
 package com.exe201.ilink.model.payload.dto.response;
 
-import com.exe201.ilink.model.payload.dto.request.ProductRequest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +23,7 @@ public class ShopProductResponse {
     private int pageSize;
     @JsonProperty(value = "total_elements", index = 4)
     private long totalElements;
-    @JsonProperty(value = "total_pages",index = 5)
+    @JsonProperty(value = "total_pages", index = 5)
     private int totalPages;
     @JsonProperty(value = "last", index = 6)
     private boolean last;

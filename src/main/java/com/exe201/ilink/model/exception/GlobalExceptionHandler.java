@@ -19,16 +19,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponse> handleException(Exception exception) {
         exception.printStackTrace();
-        return  ResponseEntity
-                .status(500)
-                .body(
-                        ExceptionResponse.builder()
-                                .httpStatus(500)
-                                .timestamp(DateUtil.formatTimestamp(new Date()))
-                                .message("Internal Server Error. Please contact administrator for more information.")
-                                .error(exception.getMessage())
-                                .build()
-                );
+        return ResponseEntity
+            .status(500)
+            .body(
+                ExceptionResponse.builder()
+                    .httpStatus(500)
+                    .timestamp(DateUtil.formatTimestamp(new Date()))
+                    .message("Internal Server Error. Please contact administrator for more information.")
+                    .error(exception.getMessage())
+                    .build()
+            );
 
     }
 
@@ -42,61 +42,61 @@ public class GlobalExceptionHandler {
         });
 
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(
-                        ExceptionResponse.builder()
-                                .httpStatus(HttpStatus.BAD_REQUEST.value())
-                                .timestamp(DateUtil.formatTimestamp(new Date()))
-                                .data(errors)
-                                .build()
-                );
+            .status(HttpStatus.BAD_REQUEST)
+            .body(
+                ExceptionResponse.builder()
+                    .httpStatus(HttpStatus.BAD_REQUEST.value())
+                    .timestamp(DateUtil.formatTimestamp(new Date()))
+                    .data(errors)
+                    .build()
+            );
 
     }
 
     @ExceptionHandler(RegisterAccountExistedException.class)
-    public ResponseEntity<ExceptionResponse> handleRegisterAccountExistedException(RegisterAccountExistedException exception){
+    public ResponseEntity<ExceptionResponse> handleRegisterAccountExistedException(RegisterAccountExistedException exception) {
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(
-                        ExceptionResponse.builder()
-                                .httpStatus(HttpStatus.BAD_REQUEST.value())
-                                .timestamp(DateUtil.formatTimestamp(new Date()))
-                                .message("Registration request failed. Account already existed.")
-                                .error(exception.getMessage())
-                                .build()
-                );
+            .status(HttpStatus.BAD_REQUEST)
+            .body(
+                ExceptionResponse.builder()
+                    .httpStatus(HttpStatus.BAD_REQUEST.value())
+                    .timestamp(DateUtil.formatTimestamp(new Date()))
+                    .message("Registration request failed. Account already existed.")
+                    .error(exception.getMessage())
+                    .build()
+            );
     }
 
     @ExceptionHandler(ActivationCodeException.class)
-    public ResponseEntity<ExceptionResponse> handleActivationCodeException(ActivationCodeException exception){
+    public ResponseEntity<ExceptionResponse> handleActivationCodeException(ActivationCodeException exception) {
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(
-                        ExceptionResponse.builder()
-                                .httpStatus(HttpStatus.BAD_REQUEST.value())
-                                .timestamp(DateUtil.formatTimestamp(new Date()))
-                                .message("Email verification failed.")
-                                .error(exception.getMessage())
-                                .build()
-                );
+            .status(HttpStatus.BAD_REQUEST)
+            .body(
+                ExceptionResponse.builder()
+                    .httpStatus(HttpStatus.BAD_REQUEST.value())
+                    .timestamp(DateUtil.formatTimestamp(new Date()))
+                    .message("Email verification failed.")
+                    .error(exception.getMessage())
+                    .build()
+            );
     }
 
     @ExceptionHandler(ILinkException.class)
-    public ResponseEntity<ExceptionResponse> handleILinkException(ILinkException exception){
+    public ResponseEntity<ExceptionResponse> handleILinkException(ILinkException exception) {
         return ResponseEntity
-                .status(exception.getHttpStatus().value())
-                .body(
-                        ExceptionResponse.builder()
-                                .httpStatus(exception.getHttpStatus().value())
-                                .timestamp(DateUtil.formatTimestamp(new Date()))
-                                .message(exception.getMessage())
-                                .build()
-                );
+            .status(exception.getHttpStatus().value())
+            .body(
+                ExceptionResponse.builder()
+                    .httpStatus(exception.getHttpStatus().value())
+                    .timestamp(DateUtil.formatTimestamp(new Date()))
+                    .message(exception.getMessage())
+                    .build()
+            );
     }
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ExceptionResponse> handleAuthenticationException(AuthenticationException exception) {
-        return  ResponseEntity
+        return ResponseEntity
             .status(HttpStatus.UNAUTHORIZED.value())
             .body(
                 ExceptionResponse.builder()

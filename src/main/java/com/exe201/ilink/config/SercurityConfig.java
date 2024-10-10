@@ -35,20 +35,21 @@ public class SercurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .cors(withDefaults())
-                .authorizeHttpRequests(request -> request.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/auth/**").permitAll()
-                        .requestMatchers("/account/**").hasAnyAuthority("BUYER","SELLER")
-                        .requestMatchers("/product/**","/shop/**","/post/**").hasAnyAuthority("SELLER","MANAGER")
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint));
+            .cors(withDefaults())
+            .authorizeHttpRequests(request ->
+                request.requestMatchers("/account/**").hasAnyAuthority("BUYER", "SELLER")
+                    .requestMatchers("/product/**", "/shop/**", "/post/**").hasAnyAuthority("SELLER", "MANAGER")
+                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/auth/**").permitAll()
+                    .anyRequest().authenticated()
+            )
+            .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         http.logout(logout -> logout.logoutUrl("api/v1/account/logout")
-                .addLogoutHandler(logoutHandler)
-                .logoutSuccessHandler((request, response, authentication)
-                        -> SecurityContextHolder.clearContext()));
+            .addLogoutHandler(logoutHandler)
+            .logoutSuccessHandler((request, response, authentication)
+                -> SecurityContextHolder.clearContext()));
 
 
         return http.build();

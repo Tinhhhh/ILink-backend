@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -87,7 +86,7 @@ public class AccountController {
     })
     @PostMapping(value = "/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Object> updateUserProfilePicture(@NotNull @RequestParam(value = "id") UUID id,
-                                           @RequestParam(value = "profile_pic", required = false) MultipartFile profilePicture) throws IOException {
+                                                           @RequestParam(value = "profile_pic", required = false) MultipartFile profilePicture) throws IOException {
 
         String imageURLMain = cloudinaryService.uploadFile(profilePicture);
         accountService.updateAccountProfilePicture(id, imageURLMain);
@@ -113,7 +112,7 @@ public class AccountController {
     })
     @PutMapping(value = "/profile")
     public ResponseEntity<Object> updateProfile(@NotNull @RequestParam(value = "id") UUID id,
-                                @RequestBody @Valid AccountProfile accountProfile) {
+                                                @RequestBody @Valid AccountProfile accountProfile) {
         accountService.updateAccountInfo(id, accountProfile);
         return ResponseBuilder.responseBuilder(HttpStatus.OK, "Account profile information updated successfully");
     }

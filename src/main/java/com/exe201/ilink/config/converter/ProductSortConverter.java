@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class ProductSortConverter implements Converter<String, ProductSort> {
     @Override
     public ProductSort convert(String source) {
-        switch (source.toLowerCase()){
+        switch (source.toLowerCase()) {
             case "lowestprice":
                 return ProductSort.SORT_BY_PRICE_ASC;
             case "highestprice":

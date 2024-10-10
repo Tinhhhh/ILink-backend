@@ -1,7 +1,5 @@
 package com.exe201.ilink.model.payload.dto.response;
 
-import com.exe201.ilink.model.entity.ProductCategory;
-import com.exe201.ilink.model.entity.Shop;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -42,8 +40,6 @@ public class ProductResponse {
     @Schema(description = "Product's shop name", example = "Souvi")
     @JsonProperty("shop_name")
     private String shopName;
-
-
 
 
 }

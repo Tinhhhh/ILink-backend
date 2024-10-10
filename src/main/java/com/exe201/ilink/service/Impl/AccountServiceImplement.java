@@ -13,7 +13,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -33,14 +32,14 @@ public class AccountServiceImplement implements AccountService {
         //Extract Account Info
         String userEmail = jwtTokenProvider.getUsername(token);
         Account account = accountRepository.findByEmail(userEmail)
-                .orElse(null);
+            .orElse(null);
 
         if (account == null && !jwtTokenProvider.validateToken(token)) {
-            throw new ILinkException(HttpStatus.BAD_REQUEST,"No account found with this token");
+            throw new ILinkException(HttpStatus.BAD_REQUEST, "No account found with this token");
         }
 
         if (!jwtTokenProvider.isTokenValid(token, account.getEmail())) {
-            throw new ILinkException(HttpStatus.UNAUTHORIZED,"Token is invalid or is expired");
+            throw new ILinkException(HttpStatus.UNAUTHORIZED, "Token is invalid or is expired");
         }
 
         return account;
@@ -50,7 +49,7 @@ public class AccountServiceImplement implements AccountService {
     public void changePassword(ChangePasswordRequest changePasswordRequest, HttpServletRequest request) {
         Account account = getCurrentAccountInfo(request);
 
-        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), account.getPassword())){
+        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), account.getPassword())) {
             throw new ILinkException(HttpStatus.BAD_REQUEST, "Your old password is incorrect");
         }
         account.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
@@ -60,7 +59,7 @@ public class AccountServiceImplement implements AccountService {
     @Override
     public void updateAccountProfilePicture(UUID id, String imageURLMain) {
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "No account found with this id"));
+            .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "No account found with this id"));
 
         if (imageURLMain == null) {
             throw new ILinkException(HttpStatus.BAD_REQUEST, "Image URL is null");
@@ -78,7 +77,7 @@ public class AccountServiceImplement implements AccountService {
         }
 
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "Account not exists or not found "));
+            .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "Account not exists or not found "));
 
         account.setFirstName(accountProfile.getFirstName());
         account.setLastName(accountProfile.getLastName());
@@ -99,7 +98,7 @@ public class AccountServiceImplement implements AccountService {
         }
 
         if (token == null) {
-            throw new ILinkException(HttpStatus.UNAUTHORIZED ,"No JWT found in request header");
+            throw new ILinkException(HttpStatus.UNAUTHORIZED, "No JWT found in request header");
         }
         return token;
     }

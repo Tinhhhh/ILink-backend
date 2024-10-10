@@ -7,18 +7,18 @@ import java.io.UnsupportedEncodingException;
 
 public interface EmailService {
     void sendEmail(
-            String to,
-            String accountName,
-            EmailTemplateName emailTemplateName,
-            String confirmationUrl,
-            String activationCode,
-            String subject
+        String to,
+        String accountName,
+        EmailTemplateName emailTemplateName,
+        String confirmationUrl,
+        String activationCode,
+        String subject
     ) throws MessagingException, UnsupportedEncodingException;
 
     void sendSimpleEmail(String name, String to, String token);
 
-    void sendMimeMessageWithEmbeddedFiles(String name, String to,String code) throws MessagingException;
+    void sendMimeMessageWithEmbeddedFiles(String name, String to, String code) throws MessagingException;
 
-    void sendMimeMessageWithHtml(String name, String to,String content, String template, String subject) throws MessagingException;
+    void sendMimeMessageWithHtml(String name, String to, String content, String template, String subject) throws MessagingException;
 
 }

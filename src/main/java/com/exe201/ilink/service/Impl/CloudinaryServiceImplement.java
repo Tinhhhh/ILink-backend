@@ -26,9 +26,9 @@ public class CloudinaryServiceImplement implements CloudinaryService {
         }
 
         return cloudinary.uploader()
-                .upload(multipartFile.getBytes(),
-                    Map.of("public_id", UUID.randomUUID().toString()))
-                .get("url")
-                .toString();
+            .upload(multipartFile.getBytes(),
+                Map.of("public_id", UUID.randomUUID().toString()))
+            .get("url")
+            .toString();
     }
 }
