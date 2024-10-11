@@ -62,7 +62,7 @@ public class Product {
     private Set<OrderDetail> orderDetails;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Post> posts;
+    private Set<PostDetail> postDetails;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Feedback> feedbacks;

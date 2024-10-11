@@ -44,7 +44,6 @@ public class ProductServiceImplement implements ProductService {
     private final GenericConverter<Product> genericConverter;
 
 
-
     @Override
     public void addProduct(ProductRequest product) {
         Shop shop = shopRepository.findById(product.getShopId())
@@ -94,7 +93,6 @@ public class ProductServiceImplement implements ProductService {
                 .and( //Điều kiện kết hợp
                     Specification.where(ProductSpecification.hasProdName(keyword))
                         .or(ProductSpecification.hasCateName(keyword))
-                        .or(ProductSpecification.hasShopName(keyword))
                         .or(ProductSpecification.hasPrice(minPrice, maxPrice))
                 );
         }
@@ -109,14 +107,11 @@ public class ProductServiceImplement implements ProductService {
 
         Sort sort = Sort.by(sortBy.getDirection(), sortBy.getField());
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-        Specification<Product> spec = null;
-        if (keyword != null) {
-            spec = Specification.where(ProductSpecification.hasProdName(keyword))
+        Specification<Product> spec = Specification.where(ProductSpecification.hasProdName(keyword))
                 .or(ProductSpecification.hasCateName(keyword))
                 .or(ProductSpecification.hasShopName(keyword))
                 .or(ProductSpecification.hasPrice(minPrice, maxPrice));
-        }
-        spec = Specification.where(ProductSpecification.hasPrice(minPrice, maxPrice));
+
         Page<Product> productContent = productRepository.findAll(spec, pageable);
         return getProductResponse(productContent);
     }
@@ -155,7 +150,6 @@ public class ProductServiceImplement implements ProductService {
             productContent.isLast()
         );
     }
-
 
 
 }

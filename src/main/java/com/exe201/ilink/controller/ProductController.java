@@ -28,7 +28,7 @@ public class ProductController {
     private final ProductService productService;
 
     @Operation(
-        summary = "Get all the product in specific shop for user")
+        summary = "Get all the product in specific shop for seller, manager")
     @GetMapping("/shop")
     public ResponseEntity<Object> getShopProducts(@NotNull @RequestParam("shopId") Long shopId,
                                                   @RequestParam(name = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
@@ -43,7 +43,7 @@ public class ProductController {
     }
 
     @Operation(
-        summary = "Get all the product to list in homepage for user")
+        summary = "Get all the product to list in homepage for seller, manager")
     @GetMapping("/all")
     public ResponseEntity<Object> getAllProducts(@RequestParam(name = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
                                                  @RequestParam(name = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
