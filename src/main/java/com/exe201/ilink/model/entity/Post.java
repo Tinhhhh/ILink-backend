@@ -7,8 +7,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -16,6 +18,7 @@ import java.util.Date;
 @Builder
 @Entity
 @Table(name = "post")
+@EntityListeners(AuditingEntityListener.class)
 public class Post {
 
     @Id
@@ -26,8 +29,11 @@ public class Post {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "content")
-    private String content;
+    @Column(name = "description", length = 1000)
+    private String description;
+
+    @Column(name = "status")
+    private String status;
 
     @JsonIgnore
     @CreatedDate
@@ -38,9 +44,7 @@ public class Post {
     @JoinColumn(name = "shop_id")
     private Shop shop;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
-
+    @OneToMany(mappedBy = "post")
+    private List<PostDetail> postDetails;
 
 }

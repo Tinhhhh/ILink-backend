@@ -7,7 +7,6 @@ import com.exe201.ilink.model.payload.dto.response.AuthenticationResponse;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.core.Authentication;
 
 import java.security.NoSuchAlgorithmException;
 

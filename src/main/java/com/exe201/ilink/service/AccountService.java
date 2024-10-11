@@ -4,7 +4,6 @@ import com.exe201.ilink.model.entity.Account;
 import com.exe201.ilink.model.payload.dto.request.AccountProfile;
 import com.exe201.ilink.model.payload.dto.request.ChangePasswordRequest;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.ResponseEntity;
 
 import java.util.UUID;
 

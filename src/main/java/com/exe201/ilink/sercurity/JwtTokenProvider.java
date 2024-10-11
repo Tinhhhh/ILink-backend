@@ -51,11 +51,11 @@ public class JwtTokenProvider {
         String username = authentication.getName();
 
         String token = Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(key())
-                .compact();
+            .setSubject(username)
+            .setIssuedAt(new Date(System.currentTimeMillis()))
+            .setExpiration(new Date(System.currentTimeMillis() + expiration))
+            .signWith(key())
+            .compact();
         return token;
     }
 
@@ -65,15 +65,16 @@ public class JwtTokenProvider {
 
     /**
      * Get username from token
+     *
      * @param token
      * @return userEmail
      */
     public String getUsername(String token) {
         Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+            .setSigningKey(key())
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
         String username = claims.getSubject();
         return username;
     }
@@ -82,9 +83,9 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(key())
-                    .build()
-                    .parse(token);
+                .setSigningKey(key())
+                .build()
+                .parse(token);
             return true;
         } catch (MalformedJwtException e) {
             throw new ILinkException("Invalid JWT token");
@@ -104,10 +105,10 @@ public class JwtTokenProvider {
 
     private boolean isTokenExpired(String token) {
         Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+            .setSigningKey(key())
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
         return claims.getExpiration().before(new Date(System.currentTimeMillis()));
     }
 

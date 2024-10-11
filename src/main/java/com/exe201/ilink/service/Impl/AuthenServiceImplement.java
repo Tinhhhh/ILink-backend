@@ -18,7 +18,6 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -72,7 +71,7 @@ public class AuthenServiceImplement implements AuthenService {
 
         if (request.getRole().equals(SELLER.getRoleName())) {
             shopRegisterion(request);
-        } else if (request.getRole().equals(BUYER.getRoleName())){
+        } else if (request.getRole().equals(BUYER.getRoleName())) {
             accountRegisteration(request);
         } else {
             throw new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Register fails, please contact the administrator for more information");
@@ -220,7 +219,7 @@ public class AuthenServiceImplement implements AuthenService {
 
         String token = generateResetPasswordToken(32);
         StringBuilder link = new StringBuilder();
-        link.append(url).append("/auth/reset-password?").append("token=").append(token);
+        link.append(url).append("/").append(token);
         emailService.sendMimeMessageWithHtml(
             account.fullName(), account.getEmail(), link.toString(),
             EmailTemplateName.FORGOT_PASSWORD.getName(), "Reset your password");

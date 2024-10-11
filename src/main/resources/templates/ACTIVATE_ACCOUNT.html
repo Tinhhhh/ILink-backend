@@ -3,8 +3,8 @@
       xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Souvi Verification Code</title>
     <style>
         body {
@@ -96,23 +96,26 @@
 <body>
 <div class="container">
     <div class="header">
-        <img src="https://i.imgur.com/n8FA1lf.png" alt="Souvi Logo">
+        <img alt="Souvi Logo" src="https://i.imgur.com/n8FA1lf.png">
     </div>
     <div class="content">
         <h2>Mã Đăng Nhập</h2>
         <p th:text="'Xin chào '+ ${username}+ ','"></p>
         <p>Đây là mã xác minh đăng nhập của bạn:</p>
         <div class="verification-code"><span th:text="${content}"></span></div>
-        <p>Nếu bạn không yêu cầu mã này, hãy thay đổi mật khẩu của bạn ngay lập tức để ngăn chặn truy cập trái phép.</p>
+        <p>Nếu bạn không yêu cầu mã này, hãy thay đổi mật khẩu của bạn ngay lập tức để ngăn chặn
+            truy cập trái phép.</p>
     </div>
     <div class="footer">
         <div class="social-icons">
             <a href="https://www.facebook.com/people/Souvi/61566382618830">
-                <img src="https://i.imgur.com/NBqZYzn.png" alt="Facebook"></a>
-            <a href="#"><img src="https://imgur.com/7LPMq2B.png" alt="Twitter"></a>
-            <a href="#"><img src="https://imgur.com/FlPZGYu.png" alt="Instagram" style="width: 24px"></a>
+                <img alt="Facebook" src="https://i.imgur.com/NBqZYzn.png"></a>
+            <a href="#"><img alt="Twitter" src="https://imgur.com/7LPMq2B.png"></a>
+            <a href="#"><img alt="Instagram" src="https://imgur.com/FlPZGYu.png"
+                             style="width: 24px"></a>
         </div>
-        <p><a href="#">Chính sách bảo mật</a> | <a href="#">Hỗ trợ</a> | <a href="#">Điều khoản dịch vụ</a></p>
+        <p><a href="#">Chính sách bảo mật</a> | <a href="#">Hỗ trợ</a> | <a href="#">Điều khoản dịch
+            vụ</a></p>
         <p>Cảm ơn bạn đã chọn chúng tôi!</p>
         <p>© 2024 ILink. Tất cả các quyền được bảo lưu.</p>
     </div>

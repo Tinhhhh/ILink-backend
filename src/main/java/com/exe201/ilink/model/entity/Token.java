@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Table(name = "token", indexes = {
-        @Index(name = "idx_access_token", columnList = "access_token"),
-        @Index(name = "idx_refresh_token", columnList = "refresh_token"),
+    @Index(name = "idx_access_token", columnList = "access_token"),
+    @Index(name = "idx_refresh_token", columnList = "refresh_token"),
 })
 public class Token {
     @Id
@@ -23,11 +23,11 @@ public class Token {
     private Long id;
 
     @JsonProperty("access_token")
-    @Column(name = "access_token",length = 450)
+    @Column(name = "access_token", length = 450)
     private String accessToken;
 
     @JsonProperty("refresh_token")
-    @Column(name = "refresh_token",length = 350)
+    @Column(name = "refresh_token", length = 350)
     private String refreshToken;
 
     @JsonProperty("token_type")
@@ -42,7 +42,6 @@ public class Token {
     private boolean expired;
 
     private boolean revoked;
-
 
 
 }

@@ -2,18 +2,22 @@ package com.exe201.ilink.controller;
 
 
 import com.exe201.ilink.Util.AppConstants;
-import com.exe201.ilink.model.exception.CustomSuccessHandler;
+import com.exe201.ilink.model.enums.ProductSort;
+import com.exe201.ilink.model.exception.ResponseBuilder;
 import com.exe201.ilink.model.payload.dto.request.ProductRequest;
+import com.exe201.ilink.model.payload.dto.request.UpdateProductRequest;
 import com.exe201.ilink.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Map;
-import java.util.UUID;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("product")
@@ -23,21 +27,66 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping("/products")
-    public ResponseEntity<Object> getShopProducts(@NotNull @RequestParam("accountId") UUID accountId,
+    @Operation(
+        summary = "Get all the product in specific shop for seller, manager")
+    @GetMapping("/shop")
+    public ResponseEntity<Object> getShopProducts(@NotNull @RequestParam("shopId") Long shopId,
                                                   @RequestParam(name = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
                                                   @RequestParam(name = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
-                                                  @RequestParam(name = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
-                                                  @RequestParam(name = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir
-    ){
-        return CustomSuccessHandler.responseBuilderWithData(HttpStatus.OK, "Successfully retrieved products", productService.getShopProducts(accountId, pageNo, pageSize, sortBy, sortDir));
+                                                  @RequestParam(name = "sortBy", defaultValue = AppConstants.DEFAULT_PRODUCT_SORT_DATE_DSC, required = false) ProductSort sortBy,
+                                                  @RequestParam(name = "keyword", required = false) String keyword,
+                                                  @RequestParam(name = "minPrice", required = false) Double minPrice,
+                                                  @RequestParam(name = "maxPrice", required = false) Double maxPrice
+    ) {
+        return ResponseBuilder.responseBuilderWithData(HttpStatus.OK, "Successfully retrieved products",
+            productService.getShopProducts(shopId, pageNo, pageSize, sortBy, minPrice, maxPrice, keyword));
     }
 
-    @PostMapping("/new-product")
-    public Map<String, Object> addProduct(@NotNull @RequestParam("accountId") UUID accountId,
-                                          @RequestBody ProductRequest productRequest){
-        productService.addProduct(accountId, productRequest);
-        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Product added successfully");
+    @Operation(
+        summary = "Get all the product to list in homepage for seller, manager")
+    @GetMapping("/all")
+    public ResponseEntity<Object> getAllProducts(@RequestParam(name = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+                                                 @RequestParam(name = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
+                                                 @RequestParam(name = "sortBy", defaultValue = AppConstants.DEFAULT_PRODUCT_SORT_DATE_DSC, required = false) ProductSort sortBy,
+                                                 @RequestParam(name = "keyword", required = false) String keyword,
+                                                 @RequestParam(name = "minPrice", required = false) Double minPrice,
+                                                 @RequestParam(name = "maxPrice", required = false) Double maxPrice
+
+    ) {
+        return ResponseBuilder.responseBuilderWithData(HttpStatus.OK, "Successfully retrieved products",
+            productService.getAllOrSearchProducts(pageNo, pageSize, sortBy, keyword, minPrice, maxPrice));
+    }
+
+    @Operation(
+        summary = "Get details of product for user")
+    @GetMapping("/details")
+    public ResponseEntity<Object> getProductDetails(@RequestParam(name = "productId") Long productId
+    ) {
+        return ResponseBuilder.responseBuilderWithData(HttpStatus.OK, "Successfully retrieved products", productService.getProductDetails(productId));
+    }
+
+
+    @PostMapping(value = "/new")
+    public ResponseEntity<Object> addProduct(@NotNull @RequestBody ProductRequest productRequest
+    ) {
+        productService.addProduct(productRequest);
+        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Request accepted. add product successfully, please wait for manager approval");
+    }
+
+    @PostMapping(value = "/picture", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Object> addPicture(@NotNull @RequestParam("productId") Long productId,
+                                             @RequestParam("picture_file") MultipartFile file
+    ) throws IOException {
+        productService.addPicture(productId, file);
+        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Picture profile picture updated successfully");
+    }
+
+    @PutMapping(value = "/edit")
+    public ResponseEntity<Object> editProduct(@NotNull @RequestParam("productId") Long productId,
+                                              @RequestBody UpdateProductRequest productRequest
+    ) {
+        productService.updateProduct(productId, productRequest);
+        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Request accepted. edit product successfully");
     }
 
 }

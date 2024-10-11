@@ -25,7 +25,7 @@ import java.util.*;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "account", indexes = {
-        @Index(name = "idx_email", columnList = "email"),
+    @Index(name = "idx_email", columnList = "email"),
 })
 public class Account implements UserDetails, Principal {
 
@@ -141,8 +141,6 @@ public class Account implements UserDetails, Principal {
     public String fullName() {
         return firstName + " " + lastName;
     }
-
-
 
 
 }

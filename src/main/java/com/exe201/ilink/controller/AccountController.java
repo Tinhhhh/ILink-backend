@@ -1,6 +1,6 @@
 package com.exe201.ilink.controller;
 
-import com.exe201.ilink.model.exception.CustomSuccessHandler;
+import com.exe201.ilink.model.exception.ResponseBuilder;
 import com.exe201.ilink.model.payload.dto.request.AccountProfile;
 import com.exe201.ilink.model.payload.dto.request.ChangePasswordRequest;
 import com.exe201.ilink.service.AccountService;
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -67,14 +66,14 @@ public class AccountController {
     })
     @GetMapping("/profile")
     public ResponseEntity<Object> getCurrentAccountInfo(HttpServletRequest request) {
-        return CustomSuccessHandler.responseBuilderWithData(HttpStatus.OK,
+        return ResponseBuilder.responseBuilderWithData(HttpStatus.OK,
             "Successfully retrieved user information", accountService.getCurrentAccountInfo(request));
     }
 
     @PostMapping("/change-password")
-    public Map<String, Object> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest, HttpServletRequest request) {
+    public ResponseEntity<Object> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest, HttpServletRequest request) {
         accountService.changePassword(changePasswordRequest, request);
-        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Password changed successfully");
+        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Password changed successfully");
     }
 
     @Operation(
@@ -86,21 +85,21 @@ public class AccountController {
         @ApiResponse(responseCode = "500", description = "Failed to update user profile picture"),
     })
     @PostMapping(value = "/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public Map<String, Object> updateUserProfilePicture(@NotNull @RequestParam(value = "id") UUID id,
-                                           @RequestParam(value = "profile_pic", required = false) MultipartFile profilePicture) throws IOException {
+    public ResponseEntity<Object> updateUserProfilePicture(@NotNull @RequestParam(value = "id") UUID id,
+                                                           @RequestParam(value = "profile_pic", required = false) MultipartFile profilePicture) throws IOException {
 
         String imageURLMain = cloudinaryService.uploadFile(profilePicture);
         accountService.updateAccountProfilePicture(id, imageURLMain);
-        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "User profile picture updated successfully");
+        return ResponseBuilder.responseBuilder(HttpStatus.OK, "User profile picture updated successfully");
     }
 
 
     @Operation(summary = "Logout of the system", description = "Logout of the system, bearer token (refresh token) is required")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Logged out successfully"), @ApiResponse(responseCode = "401", description = "No JWT token found in the request header")})
     @PostMapping("/logout")
-    public Map<String, Object> logout(HttpServletRequest request) {
+    public ResponseEntity<Object> logout(HttpServletRequest request) {
         authService.logout(request);
-        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Logged out successfully");
+        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Logged out successfully");
     }
 
     @Operation(
@@ -112,10 +111,10 @@ public class AccountController {
         @ApiResponse(responseCode = "500", description = "No JWT token found in the request header"),
     })
     @PutMapping(value = "/profile")
-    public Map<String, Object> updateProfile(@NotNull @RequestParam(value = "id") UUID id,
-                                @RequestBody @Valid AccountProfile accountProfile) {
+    public ResponseEntity<Object> updateProfile(@NotNull @RequestParam(value = "id") UUID id,
+                                                @RequestBody @Valid AccountProfile accountProfile) {
         accountService.updateAccountInfo(id, accountProfile);
-        return CustomSuccessHandler.responseBuilder(HttpStatus.OK, "Account profile information updated successfully");
+        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Account profile information updated successfully");
     }
 
 

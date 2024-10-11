@@ -11,12 +11,12 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(info = @Info(
-        title = "ILINK REST API", version = "1.0", description = "API documentation for ILINK idol social media connecting application",
-        contact = @Contact(name = "Vo Van Tinh", email = "tinhvv02012003@gmail.com", url = "https://github.com/Tinhhhh")),
-        security = {@SecurityRequirement(name = "bearerToken")}
+    title = "ILINK REST API", version = "1.0", description = "API documentation for ILINK idol social media connecting application",
+    contact = @Contact(name = "Vo Van Tinh", email = "tinhvv02012003@gmail.com", url = "https://github.com/Tinhhhh")),
+    security = {@SecurityRequirement(name = "bearerToken")}
 )
 @SecuritySchemes({
-        @SecurityScheme(name = "bearerToken", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT")
+    @SecurityScheme(name = "bearerToken", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT")
 })
 public class OpenApi {
 }
