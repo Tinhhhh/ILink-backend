@@ -25,7 +25,7 @@ public class ProductResponse {
     private String description;
 
     @Schema(description = "Product's price", example = "1000")
-    private double price;
+    private Double price;
 
     @Schema(description = "Product's status", example = "ACTIVE")
     private String status;

@@ -4,20 +4,15 @@ import com.exe201.ilink.Util.AppConstants;
 import com.exe201.ilink.model.enums.ProductSort;
 import com.exe201.ilink.model.exception.ResponseBuilder;
 import com.exe201.ilink.model.payload.dto.request.NewPostRequest;
-import com.exe201.ilink.model.payload.dto.request.ProductRequest;
-import com.exe201.ilink.model.payload.dto.request.UpdateProductRequest;
+import com.exe201.ilink.model.payload.dto.request.UpdatePostRequest;
 import com.exe201.ilink.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("post")
@@ -31,10 +26,10 @@ public class PostController {
         summary = "Get all the post in specific shop for user, seller")
     @GetMapping("/shop")
     public ResponseEntity<Object> getShopPosts(@NotNull @RequestParam("shopId") Long shopId,
-                                                  @RequestParam(name = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
-                                                  @RequestParam(name = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
-                                                  @RequestParam(name = "sortBy", defaultValue = AppConstants.DEFAULT_PRODUCT_SORT_DATE_DSC, required = false) ProductSort sortBy,
-                                                  @RequestParam(name = "keyword", required = false) String keyword
+                                               @RequestParam(name = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+                                               @RequestParam(name = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
+                                               @RequestParam(name = "sortBy", defaultValue = AppConstants.DEFAULT_PRODUCT_SORT_DATE_DSC, required = false) ProductSort sortBy,
+                                               @RequestParam(name = "keyword", required = false) String keyword
 
     ) {
         return ResponseBuilder.responseBuilderWithData(HttpStatus.OK, "Successfully retrieved products",
@@ -45,11 +40,11 @@ public class PostController {
         summary = "Get all the post to list in homepage for user, seller")
     @GetMapping("/all")
     public ResponseEntity<Object> getAllPosts(@RequestParam(name = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
-                                                 @RequestParam(name = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
-                                                 @RequestParam(name = "sortBy", defaultValue = AppConstants.DEFAULT_PRODUCT_SORT_DATE_DSC, required = false) ProductSort sortBy,
-                                                 @RequestParam(name = "keyword", required = false) String keyword,
-                                                 @RequestParam(name = "minPrice", required = false) Double minPrice,
-                                                 @RequestParam(name = "maxPrice", required = false) Double maxPrice
+                                              @RequestParam(name = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
+                                              @RequestParam(name = "sortBy", defaultValue = AppConstants.DEFAULT_PRODUCT_SORT_DATE_DSC, required = false) ProductSort sortBy,
+                                              @RequestParam(name = "keyword", required = false) String keyword,
+                                              @RequestParam(name = "minPrice", required = false) Double minPrice,
+                                              @RequestParam(name = "maxPrice", required = false) Double maxPrice
 
     ) {
         return ResponseBuilder.responseBuilderWithData(HttpStatus.OK, "Successfully retrieved products",
@@ -80,11 +75,12 @@ public class PostController {
 //        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Picture profile picture updated successfully");
 //    }
 //
-//    @PutMapping(value = "/edit")
-//    public ResponseEntity<Object> editProduct(@NotNull @RequestParam("productId") Long productId,
-//                                              @RequestBody UpdateProductRequest productRequest
-//    ) {
-//        postService.updateProduct(productId, productRequest);
-//        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Request accepted. edit product successfully");
-//    }
+
+    @PutMapping(value = "/edit")
+    public ResponseEntity<Object> editPost(@NotNull @RequestParam("postId") Long postId,
+                                           @RequestBody UpdatePostRequest updatePostRequest
+    ) {
+        postService.updatePost(postId, updatePostRequest);
+        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Request accepted. edit post successfully");
+    }
 }
