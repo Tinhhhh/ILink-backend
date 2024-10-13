@@ -40,6 +40,7 @@ public class SercurityConfig {
                 request.requestMatchers("/account/**").hasAnyAuthority("BUYER", "SELLER")
                     .requestMatchers("/product/shop", "/product/new","/product/edit","product/details","product/picture").hasAnyAuthority("SELLER","MANAGER")
                     .requestMatchers("/product/**", "/shop/**").hasAnyAuthority( "MANAGER")
+                    .requestMatchers("/admin/**").hasAuthority("ADMIN")
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/auth/**","/post/**").permitAll()
                     .anyRequest().authenticated()
             )

@@ -89,4 +89,12 @@ public class ProductController {
         return ResponseBuilder.responseBuilder(HttpStatus.OK, "Request accepted. edit product successfully");
     }
 
+    @PutMapping(value = "/approve")
+    public ResponseEntity<Object> manageProduct(@NotNull @RequestParam("productId") Long productId,
+                                                @NotNull @RequestParam("status") String status
+    ) {
+        productService.manageProduct(productId, status);
+        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Request accepted. operation execute successfully");
+    }
+
 }

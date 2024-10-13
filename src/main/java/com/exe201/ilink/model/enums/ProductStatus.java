@@ -14,4 +14,13 @@ public enum ProductStatus {
     ProductStatus(String status) {
         this.status = status;
     }
+
+    public static boolean isContains(String text) {
+        for (ProductStatus b : ProductStatus.values()) {
+            if (b.status.equalsIgnoreCase(text)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

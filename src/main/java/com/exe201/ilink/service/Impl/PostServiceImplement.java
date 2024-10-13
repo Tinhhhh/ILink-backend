@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -113,6 +112,7 @@ public class PostServiceImplement implements PostService {
                 .categoryName(product.getCategory().getName())
                 .shopId(product.getShop().getShopId())
                 .shopName(product.getProductName())
+                .createdDate(product.getCreatedDate().toString())
                 .build());
         });
 
@@ -123,6 +123,7 @@ public class PostServiceImplement implements PostService {
             .description(post.getDescription())
             .status(post.getStatus())
             .products(productResponses)
+            .createdDate(post.getCreatedDate().toString())
             .build();
 
     }
