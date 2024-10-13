@@ -9,11 +9,11 @@ import com.exe201.ilink.model.entity.Shop;
 import com.exe201.ilink.model.enums.PostStatus;
 import com.exe201.ilink.model.enums.ProductSort;
 import com.exe201.ilink.model.exception.ILinkException;
-import com.exe201.ilink.model.payload.dto.request.NewPostRequest;
-import com.exe201.ilink.model.payload.dto.request.UpdatePostRequest;
-import com.exe201.ilink.model.payload.dto.response.ListPostResponse;
-import com.exe201.ilink.model.payload.dto.response.PostResponse;
-import com.exe201.ilink.model.payload.dto.response.ProductResponse;
+import com.exe201.ilink.model.payload.request.NewPostRequest;
+import com.exe201.ilink.model.payload.request.UpdatePostRequest;
+import com.exe201.ilink.model.payload.response.ListPostResponse;
+import com.exe201.ilink.model.payload.response.PostResponse;
+import com.exe201.ilink.model.payload.response.ProductResponse;
 import com.exe201.ilink.repository.PostDetailRepository;
 import com.exe201.ilink.repository.PostRepository;
 import com.exe201.ilink.repository.ProductRepository;
@@ -111,7 +111,7 @@ public class PostServiceImplement implements PostService {
                 .stock(product.getStock())
                 .categoryName(product.getCategory().getName())
                 .shopId(product.getShop().getShopId())
-                .shopName(product.getProductName())
+                .shopName(product.getShop().getShopName())
                 .createdDate(product.getCreatedDate().toString())
                 .build());
         });

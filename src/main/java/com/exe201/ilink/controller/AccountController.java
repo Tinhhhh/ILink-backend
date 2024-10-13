@@ -1,8 +1,8 @@
 package com.exe201.ilink.controller;
 
 import com.exe201.ilink.model.exception.ResponseBuilder;
-import com.exe201.ilink.model.payload.dto.request.AccountProfile;
-import com.exe201.ilink.model.payload.dto.request.ChangePasswordRequest;
+import com.exe201.ilink.model.payload.request.AccountProfile;
+import com.exe201.ilink.model.payload.request.ChangePasswordRequest;
 import com.exe201.ilink.service.AccountService;
 import com.exe201.ilink.service.AuthenService;
 import com.exe201.ilink.service.CloudinaryService;

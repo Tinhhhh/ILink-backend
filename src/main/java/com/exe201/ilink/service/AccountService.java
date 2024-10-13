@@ -2,11 +2,11 @@ package com.exe201.ilink.service;
 
 import com.exe201.ilink.model.entity.Account;
 import com.exe201.ilink.model.enums.ProductSort;
-import com.exe201.ilink.model.payload.dto.request.AccountProfile;
-import com.exe201.ilink.model.payload.dto.request.ChangePasswordRequest;
-import com.exe201.ilink.model.payload.dto.response.AccountInfoResponse;
-import com.exe201.ilink.model.payload.dto.response.ListAccountInfo;
-import com.exe201.ilink.model.payload.dto.response.UpdateAccountResponse;
+import com.exe201.ilink.model.payload.request.AccountProfile;
+import com.exe201.ilink.model.payload.request.ChangePasswordRequest;
+import com.exe201.ilink.model.payload.response.AccountInfoResponse;
+import com.exe201.ilink.model.payload.response.ListAccountInfo;
+import com.exe201.ilink.model.payload.response.UpdateAccountResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.UUID;

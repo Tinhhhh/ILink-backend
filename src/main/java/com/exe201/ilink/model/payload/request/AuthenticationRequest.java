@@ -1,4 +1,4 @@
-package com.exe201.ilink.model.payload.dto.request;
+package com.exe201.ilink.model.payload.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -10,22 +10,19 @@ import lombok.NoArgsConstructor;
 
 @Builder
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Request object for changing password")
-public class ChangePasswordRequest {
+@AllArgsConstructor
+@Schema(description = "Request object for user sign in")
+public class AuthenticationRequest {
 
     @Schema(description = "User's email address", example = "john.doe@example.com")
     @NotBlank(message = "Email cannot be blank")
     @Email(message = "Invalid email format")
     private String email;
 
-    @Schema(description = "User's old password", example = "Password1")
+    @Schema(description = "User's password", example = "Password1")
     @NotBlank(message = "Password cannot be blank")
-    private String oldPassword;
+    private String password;
 
-    @Schema(description = "User's new password", example = "Password1")
-    @NotBlank(message = "Password cannot be blank")
-    private String newPassword;
 
 }

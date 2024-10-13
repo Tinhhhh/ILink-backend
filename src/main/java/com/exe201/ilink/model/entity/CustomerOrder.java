@@ -26,6 +26,9 @@ public class CustomerOrder {
     @Column(name = "customer_order_id")
     private Long id;
 
+    @Column(name = "code", unique = true, nullable = false)
+    private String code;
+
     @JsonProperty("shipped_address")
     @Column(name = "shipped_address")
     private String address;

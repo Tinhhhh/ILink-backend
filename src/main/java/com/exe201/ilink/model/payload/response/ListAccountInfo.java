@@ -1,4 +1,4 @@
-package com.exe201.ilink.model.payload.dto.response;
+package com.exe201.ilink.model.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -12,9 +12,9 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ListPostResponse {
+public class ListAccountInfo {
     @JsonProperty(value = "content", index = 1)
-    private List<PostResponse> content;
+    private List<AccountInfoResponse> content;
 
     @JsonProperty(value = "page_no", index = 2)
     private int pageNo;

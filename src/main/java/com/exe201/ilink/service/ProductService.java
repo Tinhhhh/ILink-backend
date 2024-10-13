@@ -2,10 +2,10 @@ package com.exe201.ilink.service;
 
 
 import com.exe201.ilink.model.enums.ProductSort;
-import com.exe201.ilink.model.payload.dto.request.ProductRequest;
-import com.exe201.ilink.model.payload.dto.request.UpdateProductRequest;
-import com.exe201.ilink.model.payload.dto.response.ProductResponse;
-import com.exe201.ilink.model.payload.dto.response.ShopProductResponse;
+import com.exe201.ilink.model.payload.request.ProductRequest;
+import com.exe201.ilink.model.payload.request.UpdateProductRequest;
+import com.exe201.ilink.model.payload.response.ProductResponse;
+import com.exe201.ilink.model.payload.response.ShopProductResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

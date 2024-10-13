@@ -1,9 +1,9 @@
 package com.exe201.ilink.service;
 
 
-import com.exe201.ilink.model.payload.dto.request.AuthenticationRequest;
-import com.exe201.ilink.model.payload.dto.request.RegistrationRequest;
-import com.exe201.ilink.model.payload.dto.response.AuthenticationResponse;
+import com.exe201.ilink.model.payload.request.AuthenticationRequest;
+import com.exe201.ilink.model.payload.request.RegistrationRequest;
+import com.exe201.ilink.model.payload.response.AuthenticationResponse;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
