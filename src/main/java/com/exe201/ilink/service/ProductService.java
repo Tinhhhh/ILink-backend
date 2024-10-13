@@ -23,4 +23,6 @@ public interface ProductService {
     ProductResponse getProductDetails(Long productId);
 
     void addPicture(Long productId, MultipartFile file) throws IOException;
+
+    void manageProduct(Long productId, String status);
 }

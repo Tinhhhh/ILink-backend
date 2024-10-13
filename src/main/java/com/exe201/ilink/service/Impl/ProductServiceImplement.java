@@ -137,6 +137,19 @@ public class ProductServiceImplement implements ProductService {
         productRepository.save(product);
     }
 
+    @Override
+    public void manageProduct(Long productId, String status) {
+        Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "Product manage fails. Product not found, please contact the administrator."));
+
+        if (!ProductStatus.isContains(status)) {
+            throw new ILinkException(HttpStatus.BAD_REQUEST, "Product manage fails. Invalid status, please contact the administrator.");
+        }
+        product.setStatus(status.toUpperCase());
+        productRepository.save(product);
+
+    }
+
     private ShopProductResponse getProductResponse(Page<Product> productContent) {
         List<Product> products = productContent.getContent();
         List<ProductResponse> content = products.stream().map(prod -> modelMapper.map(prod, ProductResponse.class)).toList();

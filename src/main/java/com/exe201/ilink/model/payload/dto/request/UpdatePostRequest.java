@@ -10,22 +10,19 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Request object for new post information")
-public class NewPostRequest {
-
+@Builder
+public class UpdatePostRequest {
     @Column(name = "title")
     private String title;
 
     @Schema(description = "Product's description", example = "The handmade gift for your loved ones.")
     private String description;
 
-    @Schema(description = "Product's shop id", example = "1")
-    private Long shopId;
+    @Schema(description = "Post's status", example = "CLOSED")
+    private String status;
 
     @Schema(description = "Product's id", example = "1")
     private List<Long> products;
-
 }

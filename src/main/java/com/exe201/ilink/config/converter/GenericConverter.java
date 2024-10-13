@@ -1,7 +1,9 @@
 package com.exe201.ilink.config.converter;
 
+import com.exe201.ilink.model.entity.Account;
 import com.exe201.ilink.model.entity.Product;
 import com.exe201.ilink.model.payload.dto.request.ProductRequest;
+import com.exe201.ilink.model.payload.dto.response.UpdateAccountResponse;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.config.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ public class GenericConverter<T> {
             .setSkipNullEnabled(false) // Allow mapping null values
 
         ;
+
+
 
 //        modelMapper.typeMap(ProductRequest.class, Product.class).addMappings(mapper -> {
 //            mapper.skip(Product::setShop); // Bỏ qua ánh xạ shopId với thuộc tính Shop của Product
@@ -55,12 +59,5 @@ public class GenericConverter<T> {
     public T toEntity(Object dto, Class<T> entityClass) {
         return modelMapper.map(dto, entityClass);
     }
-
-    public Product toProduct(ProductRequest productRequest) {
-
-
-        return modelMapper.map(productRequest, Product.class);
-    }
-
 
 }

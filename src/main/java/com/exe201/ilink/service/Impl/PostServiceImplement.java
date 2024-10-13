@@ -10,6 +10,7 @@ import com.exe201.ilink.model.enums.PostStatus;
 import com.exe201.ilink.model.enums.ProductSort;
 import com.exe201.ilink.model.exception.ILinkException;
 import com.exe201.ilink.model.payload.dto.request.NewPostRequest;
+import com.exe201.ilink.model.payload.dto.request.UpdatePostRequest;
 import com.exe201.ilink.model.payload.dto.response.ListPostResponse;
 import com.exe201.ilink.model.payload.dto.response.PostResponse;
 import com.exe201.ilink.model.payload.dto.response.ProductResponse;
@@ -29,7 +30,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -44,26 +47,37 @@ public class PostServiceImplement implements PostService {
     @Override
     @Transactional
     public void createPost(NewPostRequest postRequest) {
+        //Check if shop exist
         Shop shop = shopRepository.findById(postRequest.getShopId())
             .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "Post creation fails. Shop not found, please contact the administrator."));
 
+        //convert request to entity
         Post newPost = genericConverter.toEntity(postRequest, Post.class);
         newPost.setShop(shop);
         newPost.setStatus(PostStatus.ACTIVE.getStatus());
+        //Save post
         postRepository.save(newPost);
 
+        //Create post detail
         List<PostDetail> postDetails = new ArrayList<>();
 
-        if (postRequest.getProductIdList().isEmpty()) {
+        if (postRequest.getProducts().isEmpty()) {
             throw new ILinkException(HttpStatus.BAD_REQUEST, "Post creation fails. Product list is empty.");
         }
 
-        postRequest.getProductIdList().forEach(productId -> {
+        //Check if product exist
+        postRequest.getProducts().forEach(productId -> {
             PostDetail postDetail = new PostDetail();
             postDetail.setPost(newPost);
-            //Status = ACTIVE
+            //Check if product is valid, Status = ACTIVE
             postDetail.setProduct(productRepository.findByProductId(productId)
                 .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "Post creation fails. Product not found or still pending, please contact the administrator.")));
+
+            //Check if product is belong to shop
+            if (!postDetail.getProduct().getShop().getShopId().equals(shop.getShopId())) {
+                throw new ILinkException(HttpStatus.BAD_REQUEST, "Post creation fails. Product not belong to shop, please contact the administrator.");
+            }
+
             postDetails.add(postDetail);
         });
         postDetailRepository.saveAll(postDetails);
@@ -98,6 +112,7 @@ public class PostServiceImplement implements PostService {
                 .categoryName(product.getCategory().getName())
                 .shopId(product.getShop().getShopId())
                 .shopName(product.getProductName())
+                .createdDate(product.getCreatedDate().toString())
                 .build());
         });
 
@@ -108,6 +123,7 @@ public class PostServiceImplement implements PostService {
             .description(post.getDescription())
             .status(post.getStatus())
             .products(productResponses)
+            .createdDate(post.getCreatedDate().toString())
             .build();
 
     }
@@ -144,6 +160,77 @@ public class PostServiceImplement implements PostService {
         return getListPostResponse(pageNo, pageSize, sortBy, spec);
     }
 
+    @Override
+    @Transactional
+    public void updatePost(Long postId, UpdatePostRequest postRequest) {
+
+        //Check if post exist
+        Post post = postRepository.findById(postId)
+            .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "Post not found, please contact the administrator."));
+
+        //Check if status is valid
+        if (!PostStatus.contains(postRequest.getStatus())) {
+            throw new ILinkException(HttpStatus.BAD_REQUEST, "Post update fails. Invalid status.");
+        }
+
+        //Check if product list is empty
+        if (postRequest.getProducts().isEmpty()) {
+            throw new ILinkException(HttpStatus.BAD_REQUEST, "Post update fails. Product list is empty.");
+        }
+
+        //Update post
+        Post newPost = genericConverter.updateEntity(postRequest, post);
+        postRepository.save(newPost);
+
+        //find old post detail to renew product lis
+        List<PostDetail> postDetails = postDetailRepository.findByPostId(postId)
+            .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "Post detail not found, please contact the administrator."));
+
+        List<Long> productIds = new ArrayList<>();
+        postDetails.forEach(
+            postDetail -> productIds.add(postDetail.getProduct().getId())
+        );
+
+        //Delete old post detail and create new post detail
+        Set<Long> newProductIds = new HashSet<>(postRequest.getProducts());
+        Set<Long> oldProductIds = new HashSet<>(productIds);
+
+        //Create Post Detail List
+        Set<Long> addProductList = new HashSet<>(newProductIds);
+        addProductList.removeAll(oldProductIds);
+
+        //Delete Post Detail
+        Set<Long> deleteProductList = new HashSet<>(oldProductIds);
+        deleteProductList.removeAll(newProductIds);
+
+        for (Long l : deleteProductList) {
+
+            PostDetail postDetail = postDetailRepository.findByProductId(l)
+                .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "Post detail not found, please contact the administrator."));
+
+            postDetailRepository.deleteById(postDetail.getId());
+        }
+
+        postDetails.clear();
+
+        addProductList.stream().forEach(productId -> {
+            PostDetail postDetail = new PostDetail();
+            postDetail.setPost(newPost);
+
+            //Check if product is valid, Status = ACTIVE
+            postDetail.setProduct(productRepository.findByProductId(productId)
+                .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "Post creation fails. Product not found or still pending, please contact the administrator.")));
+
+            //Check if product is belong to shop
+            if (!postDetail.getProduct().getShop().getShopId().equals(post.getShop().getShopId())) {
+                throw new ILinkException(HttpStatus.BAD_REQUEST, "Post creation fails. Product not belong to shop, please contact the administrator.");
+            }
+            postDetails.add(postDetail);
+            postDetailRepository.save(postDetail);
+        });
+
+    }
+
     private ListPostResponse getListPostResponse(int pageNo, int pageSize, ProductSort sortBy, Specification<Post> spec) {
         Sort sort = Sort.by(sortBy.getDirection(), sortBy.getField());
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
@@ -176,4 +263,5 @@ public class PostServiceImplement implements PostService {
             .last(posts.isLast())
             .build();
     }
+
 }

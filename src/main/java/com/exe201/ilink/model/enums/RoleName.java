@@ -14,4 +14,13 @@ public enum RoleName {
     RoleName(String roleName) {
         this.roleName = roleName;
     }
+
+    public static boolean contains(String role) {
+        for (RoleName rn : RoleName.values()) {
+            if (rn.roleName.equals(role)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

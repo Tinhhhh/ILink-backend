@@ -13,4 +13,14 @@ public enum PostStatus {
     PostStatus(String status) {
         this.status = status;
     }
+
+    public static boolean contains(String status) {
+        for (PostStatus ps : PostStatus.values()) {
+            if (ps.status.equals(status)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Schema(description = "Request object for product information")
 public class ProductResponse {
+
     @Schema(description = "Product's id", example = "1")
     @JsonProperty("product_id")
     private Long productId;
@@ -25,7 +26,7 @@ public class ProductResponse {
     private String description;
 
     @Schema(description = "Product's price", example = "1000")
-    private double price;
+    private Double price;
 
     @Schema(description = "Product's status", example = "ACTIVE")
     private String status;
@@ -35,6 +36,9 @@ public class ProductResponse {
 
     @Schema(description = "Product's stock", example = "10")
     private int stock;
+
+    @Schema(description = "Product's created date")
+    private String createdDate;
 
     @Schema(description = "Product's category id", example = "Candle")
     @JsonProperty("category_name")
