@@ -8,11 +8,11 @@ import com.exe201.ilink.model.entity.Shop;
 import com.exe201.ilink.model.enums.ProductSort;
 import com.exe201.ilink.model.enums.RoleName;
 import com.exe201.ilink.model.exception.ILinkException;
-import com.exe201.ilink.model.payload.dto.request.AccountProfile;
-import com.exe201.ilink.model.payload.dto.request.ChangePasswordRequest;
-import com.exe201.ilink.model.payload.dto.response.AccountInfoResponse;
-import com.exe201.ilink.model.payload.dto.response.ListAccountInfo;
-import com.exe201.ilink.model.payload.dto.response.UpdateAccountResponse;
+import com.exe201.ilink.model.payload.request.AccountProfile;
+import com.exe201.ilink.model.payload.request.ChangePasswordRequest;
+import com.exe201.ilink.model.payload.response.AccountInfoResponse;
+import com.exe201.ilink.model.payload.response.ListAccountInfo;
+import com.exe201.ilink.model.payload.response.UpdateAccountResponse;
 import com.exe201.ilink.repository.AccountRepository;
 import com.exe201.ilink.repository.RoleRepository;
 import com.exe201.ilink.repository.ShopRepository;
@@ -117,7 +117,7 @@ public class AccountServiceImplement implements AccountService {
         Sort sort = Sort.by(sortBy.getDirection(), sortBy.getField());
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
 
-        Specification<Account> spec = Specification.where(AccountSpecification.notAdmin().and(AccountSpecification.hasRole(role.toUpperCase())))
+        Specification<Account> spec = Specification.where(AccountSpecification.notAdmin().and(AccountSpecification.hasRole(role)))
             .and(
                 Specification.where(AccountSpecification.hasEmail(keyword))
                     .or(AccountSpecification.hasPhone(keyword))

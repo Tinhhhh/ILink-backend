@@ -18,8 +18,10 @@ public class PostSpecification {
     }
 
     public Specification<Post> hasPostTitle(String title) {
-        return (root, query, cb) -> title == null ? null :
-            cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%");
+        return (root, query, cb) -> {
+            if (title == null) return null;
+            return cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%");
+        };
     }
 
 
@@ -60,7 +62,7 @@ public class PostSpecification {
             if (shopName == null) return null;
 
             Join<Post, Shop> join = root.join("shop");
-            return cb.like(cb.lower(join.get("shopName")), "%" + shopName + "%");
+            return cb.like(cb.lower(join.get("shopName")), "%" + shopName.toLowerCase() + "%");
         };
     }
 
@@ -76,19 +78,16 @@ public class PostSpecification {
     //Filter by price
     public Specification<Post> hasPrice(Double minPrice, Double maxPrice) {
         return (root, query, cb) -> {
-
+            if (minPrice == null && maxPrice == null) return null;
             Join<Post, PostDetail> postDetailJoin = root.join("postDetails");
-
             // Từ PostDetail, Join tiếp đến Product
             Join<PostDetail, Product> productJoin = postDetailJoin.join("product");
-
-            if (minPrice == null && maxPrice == null) return null;
             if (minPrice != null && maxPrice != null)
                 return cb.between(productJoin.get("price"), minPrice, maxPrice);
             if (minPrice != null)
                 return cb.greaterThanOrEqualTo(productJoin.get("price"), minPrice);
-             else return cb.lessThanOrEqualTo(productJoin.get("price"), maxPrice);
-
+            // maxPrice != null && minPrice == null
+            return cb.lessThanOrEqualTo(productJoin.get("price"), maxPrice);
         };
     }
 

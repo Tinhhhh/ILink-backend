@@ -2,8 +2,8 @@ package com.exe201.ilink.controller;
 
 import com.exe201.ilink.model.exception.ExceptionResponse;
 import com.exe201.ilink.model.exception.ResponseBuilder;
-import com.exe201.ilink.model.payload.dto.request.AuthenticationRequest;
-import com.exe201.ilink.model.payload.dto.request.RegistrationRequest;
+import com.exe201.ilink.model.payload.request.AuthenticationRequest;
+import com.exe201.ilink.model.payload.request.RegistrationRequest;
 import com.exe201.ilink.service.AuthenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="vi"
-      xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Souvi Verification Code</title>
+    <title>Thông báo đơn hàng mới</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -30,11 +29,11 @@
         }
 
         .header img {
-            max-width: 200px; /* Increase the size of the logo */
+            max-width: 200px;
         }
 
         .content {
-            text-align: center;
+            text-align: left;
             font-size: 16px;
             color: #333333;
         }
@@ -42,32 +41,20 @@
         .content h2 {
             font-size: 24px;
             margin: 20px 0;
+            text-align: center;
         }
 
-        .verification-code {
-            display: inline-block;
+        .order-info {
             margin: 20px 0;
-            padding: 15px 30px;
-            font-size: 32px;
-            font-weight: bold;
-            color: #ffffff;
-            border: 2px solid #ff6347;
-            border-radius: 5px;
-            background-color: #ff6347; /* Change color to #ff6347 */
-            letter-spacing: 5px;
         }
 
-        .verification-link {
-            display: inline-block;
-            margin: 20px 0;
-            padding: 10px 20px;
+        .order-info p {
             font-size: 16px;
+            margin: 5px 0;
+        }
+
+        .order-info span {
             font-weight: bold;
-            color: #ff6347; /* Change text color to #ff6347 */
-            border: 2px solid #ff6347; /* Change border color to #ff6347 */
-            border-radius: 5px;
-            background-color: transparent; /* Set background to transparent */
-            text-decoration: none;
         }
 
         .footer {
@@ -99,12 +86,24 @@
         <img alt="Souvi Logo" src="https://i.imgur.com/n8FA1lf.png">
     </div>
     <div class="content">
-        <h2>Mã Đăng Nhập</h2>
-        <p th:text="'Xin chào '+ ${username}+ ','"></p>
-        <p>Đây là mã xác minh đăng nhập của bạn:</p>
-        <div class="verification-code"><span th:text="${content}"></span></div>
-        <p>Nếu bạn không yêu cầu mã này, hãy thay đổi mật khẩu của bạn ngay lập tức để ngăn chặn
-            truy cập trái phép.</p>
+        <h2>Thông báo đơn hàng mới</h2>
+        <p>Xin chào, <span th:text="${sellerName}"></span></p>
+        <p>Bạn đã có đơn hàng mới từ: <span th:text="${buyerName}"></span></p>
+        <div class="order-info">
+            <p>Mã đơn: <span th:text="${orderCode}"></span></p>
+            <p>Danh sách sản phẩm:</p>
+            <ul>
+                <!-- Sử dụng th:each để lặp qua từng phần tử trong danh sách productList -->
+                <li th:each="product : ${productList}">
+                    Tên hàng: <span th:text="${product.name}"></span><br>
+                    Số lượng: <span th:text="${product.quantity}"></span><br>
+                    Giá trên món: <span th:text="${product.price}"></span>
+                </li>
+            </ul>
+            <p>Tổng Giá tiền: <span th:text="${productPrice}"></span></p>
+            <p>Địa chỉ giao: <span th:text="${address}"></span></p>
+        </div>
+        <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.</p>
     </div>
     <div class="footer">
         <div class="social-icons">

@@ -1,4 +1,4 @@
-package com.exe201.ilink.model.payload.dto.response;
+package com.exe201.ilink.model.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

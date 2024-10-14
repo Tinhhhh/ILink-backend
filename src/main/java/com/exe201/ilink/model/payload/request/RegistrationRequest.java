@@ -1,4 +1,4 @@
-package com.exe201.ilink.model.payload.dto.request;
+package com.exe201.ilink.model.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -3,7 +3,7 @@ package com.exe201.ilink.controller;
 import com.exe201.ilink.Util.AppConstants;
 import com.exe201.ilink.model.enums.ProductSort;
 import com.exe201.ilink.model.exception.ResponseBuilder;
-import com.exe201.ilink.model.payload.dto.response.UpdateAccountResponse;
+import com.exe201.ilink.model.payload.response.UpdateAccountResponse;
 import com.exe201.ilink.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;

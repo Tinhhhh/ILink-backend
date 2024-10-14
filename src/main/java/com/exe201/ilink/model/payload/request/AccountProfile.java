@@ -1,4 +1,4 @@
-package com.exe201.ilink.model.payload.dto.request;
+package com.exe201.ilink.model.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

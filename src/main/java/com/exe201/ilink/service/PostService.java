@@ -1,10 +1,10 @@
 package com.exe201.ilink.service;
 
 import com.exe201.ilink.model.enums.ProductSort;
-import com.exe201.ilink.model.payload.dto.request.NewPostRequest;
-import com.exe201.ilink.model.payload.dto.request.UpdatePostRequest;
-import com.exe201.ilink.model.payload.dto.response.ListPostResponse;
-import com.exe201.ilink.model.payload.dto.response.PostResponse;
+import com.exe201.ilink.model.payload.request.NewPostRequest;
+import com.exe201.ilink.model.payload.request.UpdatePostRequest;
+import com.exe201.ilink.model.payload.response.ListPostResponse;
+import com.exe201.ilink.model.payload.response.PostResponse;
 
 public interface PostService {
     void createPost(NewPostRequest postRequest);

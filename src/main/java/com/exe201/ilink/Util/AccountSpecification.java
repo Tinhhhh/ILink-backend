@@ -47,10 +47,15 @@ public class AccountSpecification {
 
     public Specification<Account> hasRole(String role) {
         return (root, query, cb) -> {
-            if (role == null) return null;
-            if (!RoleName.contains(role)) return null;
+            String upperRole;
+            if (role != null) {
+                 upperRole = role.toUpperCase();
+            } else {
+                return null;
+            }
+            if (!RoleName.contains(upperRole)) return null;
             Join<Account, Role> roleJoin = root.join("role");
-            return cb.equal(roleJoin.get("roleName"), role);
+            return cb.equal(roleJoin.get("roleName"), upperRole);
         };
     }
 }

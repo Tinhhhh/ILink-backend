@@ -1,4 +1,4 @@
-package com.exe201.ilink.model.payload.dto.request;
+package com.exe201.ilink.model.payload.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
