@@ -147,9 +147,9 @@ public class PostServiceImplement implements PostService {
     @Override
     public ListPostResponse getAllOrSearchPosts(int pageNo, int pageSize, ProductSort sortBy, String keyword, Double minPrice, Double maxPrice) {
 
-//        if (keyword == null && minPrice == null && maxPrice == null) {
-//            return getListPostResponse(pageNo, pageSize, sortBy, PostSpecification.notHidden());
-//        }
+        if (keyword == null && minPrice == null && maxPrice == null) {
+            return getListPostResponse(pageNo, pageSize, sortBy, PostSpecification.notHidden());
+        }
 
         Specification<Post> spec = Specification.where(PostSpecification.notHidden()) //Điều kiện tiên quyết
             .and(
@@ -236,9 +236,8 @@ public class PostServiceImplement implements PostService {
     }
 
     private ListPostResponse getListPostResponse(int pageNo, int pageSize, ProductSort sortBy, Specification<Post> spec) {
-        Sort sort = Sort.by(sortBy.getDirection(), sortBy.getField());
+        Sort sort = Sort.by(sortBy.getDirection(), "createdDate");
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-
 
         Page<Post> posts = postRepository.findAll(spec, pageable);
         if (posts.isEmpty()) {
