@@ -117,7 +117,7 @@ public class AccountServiceImplement implements AccountService {
         Sort sort = Sort.by(sortBy.getDirection(), sortBy.getField());
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
 
-        Specification<Account> spec = Specification.where(AccountSpecification.notAdmin().and(AccountSpecification.hasRole(role.toUpperCase())))
+        Specification<Account> spec = Specification.where(AccountSpecification.notAdmin().and(AccountSpecification.hasRole(role)))
             .and(
                 Specification.where(AccountSpecification.hasEmail(keyword))
                     .or(AccountSpecification.hasPhone(keyword))

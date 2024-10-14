@@ -147,6 +147,10 @@ public class PostServiceImplement implements PostService {
     @Override
     public ListPostResponse getAllOrSearchPosts(int pageNo, int pageSize, ProductSort sortBy, String keyword, Double minPrice, Double maxPrice) {
 
+//        if (keyword == null && minPrice == null && maxPrice == null) {
+//            return getListPostResponse(pageNo, pageSize, sortBy, PostSpecification.notHidden());
+//        }
+
         Specification<Post> spec = Specification.where(PostSpecification.notHidden()) //Điều kiện tiên quyết
             .and(
                 Specification.where(PostSpecification.hasPostTitle(keyword))
