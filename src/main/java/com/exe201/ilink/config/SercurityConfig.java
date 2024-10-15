@@ -41,7 +41,7 @@ public class SercurityConfig {
                     .requestMatchers("/product/shop", "/product/new","/product/edit","product/details","product/picture").hasAnyAuthority("SELLER","MANAGER")
                     .requestMatchers("/product/**", "/shop/**","/category/new").hasAnyAuthority( "MANAGER")
                     .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/auth/**","/post/**", "/category/all","product/details").permitAll()
+                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/auth/**","/post/**", "/category/all","product/details","order/**").permitAll()
                     .anyRequest().authenticated()
             )
             .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)

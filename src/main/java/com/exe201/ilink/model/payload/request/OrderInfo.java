@@ -21,8 +21,8 @@ public class OrderInfo {
     @JsonProperty("account_id")
     private UUID accountId;
 
-    @JsonProperty("order_code")
-    private String orderCode;
+    @JsonProperty("transaction_code")
+    private String transactionCode;
 
     @JsonProperty("shipped_address")
     private String address;
