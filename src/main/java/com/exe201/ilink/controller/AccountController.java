@@ -93,15 +93,6 @@ public class AccountController {
         return ResponseBuilder.responseBuilder(HttpStatus.OK, "User profile picture updated successfully");
     }
 
-
-    @Operation(summary = "Logout of the system", description = "Logout of the system, bearer token (refresh token) is required")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Logged out successfully"), @ApiResponse(responseCode = "401", description = "No JWT token found in the request header")})
-    @PostMapping("/logout")
-    public ResponseEntity<Object> logout(HttpServletRequest request) {
-        authService.logout(request);
-        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Logged out successfully");
-    }
-
     @Operation(
         summary = "Update user profile information",
         description = "Update current user information after logging into the system.",
