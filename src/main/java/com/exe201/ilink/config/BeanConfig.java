@@ -1,5 +1,6 @@
 package com.exe201.ilink.config;
 
+import com.exe201.ilink.service.CustomerOrderService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,8 +40,8 @@ public class BeanConfig {
     }
 
     @Bean
-    public CheckoutService checkoutService(PayOS payOS) {
-        return new CheckoutService(payOS);
+    public CheckoutService checkoutService(PayOS payOS, CustomerOrderService customerOrderService) {
+        return new CheckoutService(payOS, customerOrderService);
     }
 
     @Bean

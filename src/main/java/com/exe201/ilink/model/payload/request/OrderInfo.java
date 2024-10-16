@@ -3,6 +3,7 @@ package com.exe201.ilink.model.payload.request;
 import com.exe201.ilink.model.payload.dto.OrderProductDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,12 +28,13 @@ public class OrderInfo {
     @JsonProperty("shipped_address")
     private String address;
 
+    @Size(max = 100)
     private String description;
 
     private List<OrderProductDTO> products;
 
     @JsonProperty("total_price")
-    private Double totalPrice;
+    private int totalPrice;
 
     @JsonProperty("payment_date")
     private Date paymentDate;

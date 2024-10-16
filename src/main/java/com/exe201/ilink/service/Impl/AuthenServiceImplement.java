@@ -221,8 +221,11 @@ public class AuthenServiceImplement implements AuthenService {
         StringBuilder link = new StringBuilder();
         link.append(url).append("/").append(token);
         emailService.sendMimeMessageWithHtml(
-            account.fullName(), account.getEmail(), link.toString(),
-            EmailTemplateName.FORGOT_PASSWORD.getName(), "Reset your password");
+            account.fullName(),
+            account.getEmail(),
+            link.toString(),
+            EmailTemplateName.FORGOT_PASSWORD.getName(),
+            "Reset your password");
 
         PasswordResetToken passwordResetToken = PasswordResetToken.builder()
             .token(token)
