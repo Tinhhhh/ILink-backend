@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
 import java.util.Set;
@@ -19,6 +20,7 @@ import java.util.Set;
 @Builder
 @Entity
 @Table(name = "customer_order")
+@EntityListeners(AuditingEntityListener.class)
 public class CustomerOrder {
 
     @Id
@@ -26,10 +28,12 @@ public class CustomerOrder {
     @Column(name = "customer_order_id")
     private Long id;
 
-    @Column(name = "code", unique = true, nullable = false)
+    @Column(name = "code")
     private String code;
 
-    @JsonProperty("shipped_address")
+    @Column(name = "customer_name")
+    private String customerName;
+
     @Column(name = "shipped_address")
     private String address;
 
@@ -38,7 +42,7 @@ public class CustomerOrder {
 
     @JsonProperty("total_price")
     @Column(name = "total_price")
-    private double totalPrice;
+    private int totalPrice;
 
     @Column(name = "status")
     private String status;

@@ -21,9 +21,9 @@ public class OrderProductDTO {
     private int quantity;
 
     @JsonProperty("unit_price")
-    private Double unitPrice;
+    private int unitPrice;
 
     @JsonProperty("line_total")
-    private Double lineTotal;
+    private int lineTotal;
 
 }

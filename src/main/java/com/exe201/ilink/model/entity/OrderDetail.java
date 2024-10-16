@@ -23,7 +23,10 @@ public class OrderDetail {
     private int quantity;
 
     @Column(name = "price")
-    private double price;
+    private int price;
+
+    @Column(name = "line_total")
+    private int lineTotal;
 
     @ManyToOne
     @JoinColumn(name = "order_id")

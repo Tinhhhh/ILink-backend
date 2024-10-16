@@ -1,47 +1,52 @@
 package payment;
 
-import com.exe201.ilink.model.exception.ILinkException;
+import com.exe201.ilink.model.payload.request.OrderInfo;
+import com.exe201.ilink.service.CustomerOrderService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.payos.PayOS;
 import vn.payos.type.CheckoutResponseData;
 import vn.payos.type.ItemData;
 import vn.payos.type.PaymentData;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class CheckoutService {
 
     private final PayOS payOS;
+    private final CustomerOrderService customerOrderService;
 
-    public String checkout(HttpServletRequest request) throws Exception {
-        try {
-            final String baseUrl = getBaseUrl(request);
-            final String productName = "Mì tôm hảo hảo ly";
-            final String description = "Thanh toan don hang";
-            final String returnUrl = baseUrl + "/success";
-            final String cancelUrl = baseUrl + "/cancel";
-            final int price = 2000;
-            // Gen order code
-            String currentTimeString = String.valueOf(new Date().getTime());
-            long orderCode = Long.parseLong(currentTimeString.substring(currentTimeString.length() - 6));
-            ItemData item = ItemData.builder().name(productName).quantity(1).price(price).build();
+    @Transactional
+    public String checkout(HttpServletRequest request, OrderInfo orderInfo) throws Exception {
+        final String baseUrl = getBaseUrl(request);
+//        final String productName = "Mì tôm hảo hảo ly";
+//        final String description = "Thanh toan don hang";
+        final String returnUrl = baseUrl + "/payment/success";
+        final String cancelUrl = baseUrl + "/payment/cancel";
+        final int price = orderInfo.getTotalPrice();
 
+        List<ItemData> items = orderInfo.getProducts().stream().map(product -> ItemData.builder().name(product.getProductName())
+            .quantity(product.getQuantity()).price(product.getUnitPrice()).build()).toList();
 
-            PaymentData paymentData = PaymentData.builder().orderCode(orderCode).amount(price).description(description)
-                .returnUrl(returnUrl).cancelUrl(cancelUrl).item(item).build();
-            CheckoutResponseData data = payOS.createPaymentLink(paymentData);
+        // Gen order code
+        String currentTimeString = String.valueOf(new Date().getTime());
+        long orderCode = Long.parseLong(currentTimeString.substring(currentTimeString.length() - 6));
 
-            String checkoutUrl = data.getCheckoutUrl();
-            return checkoutUrl;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create payment link");
-        }
+//        ItemData item = ItemData.builder().name(productName).quantity(1).price(price).build();
+
+        PaymentData paymentData = PaymentData.builder().orderCode(orderCode).amount(price).description(orderInfo.getDescription())
+            .returnUrl(returnUrl).cancelUrl(cancelUrl).items(items).build();
+
+        CheckoutResponseData data = payOS.createPaymentLink(paymentData);
+
+        customerOrderService.saveOrder(orderInfo, String.valueOf(orderCode));
+
+        return data.getCheckoutUrl();
 
     }
 

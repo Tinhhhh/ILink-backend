@@ -1,6 +1,7 @@
 package com.exe201.ilink.service.Impl;
 
 import com.exe201.ilink.model.enums.EmailTemplateName;
+import com.exe201.ilink.model.payload.dto.OrderProductDTO;
 import com.exe201.ilink.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -17,6 +18,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.exe201.ilink.Util.EmailUtils.activeCodeMessage;
@@ -125,19 +127,42 @@ public class EmailServiceImplement implements EmailService {
             Context context = new Context();
             context.setVariable("username", name);
             context.setVariable("content", content);
-            String text = templateEngine.process(template, context);
-            MimeMessage message = getMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF_8_CODING);
-            helper.setSubject(subject);
-            helper.setPriority(1);
-            helper.setFrom(sender, senderNickName);
-            helper.setTo(to);
-            helper.setText(text, true);
-            mailSender.send(message);
+            extractTemplate(to, template, subject, senderNickName, context);
         } catch (Exception exception) {
             System.out.println("Error: " + exception.getMessage());
             throw new RuntimeException("Error: " + exception.getMessage());
         }
+    }
+
+    @Override
+    @Async
+    public void sendMimeMessageForSeller(String seller, String buyer, String sellerEmail,String code, List<OrderProductDTO> product, int totalPrice, String address, String template, String subject) throws MessagingException {
+        try {
+            String senderNickName = "Customer Service Team at Souvi";
+            Context context = new Context();
+            context.setVariable("sellerName", seller);
+            context.setVariable("buyerName", buyer);
+            context.setVariable("orderCode",code);
+            context.setVariable("productList", product);
+            context.setVariable("totalPrice", totalPrice);
+            context.setVariable("address", address);
+            extractTemplate(sellerEmail, template, subject, senderNickName, context);
+        } catch (Exception exception) {
+            System.out.println("Error: " + exception.getMessage());
+            throw new RuntimeException("Error: " + exception.getMessage());
+        }
+    }
+
+    private void extractTemplate(String sellerEmail, String template, String subject, String senderNickName, Context context) throws MessagingException, UnsupportedEncodingException {
+        String text = templateEngine.process(template, context);
+        MimeMessage message = getMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF_8_CODING);
+        helper.setSubject(subject);
+        helper.setPriority(1);
+        helper.setFrom(sender, senderNickName);
+        helper.setTo(sellerEmail);
+        helper.setText(text, true);
+        mailSender.send(message);
     }
 
     public MimeMessage getMessage() {

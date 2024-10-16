@@ -95,12 +95,13 @@
             <ul>
                 <!-- Sử dụng th:each để lặp qua từng phần tử trong danh sách productList -->
                 <li th:each="product : ${productList}">
-                    Tên hàng: <span th:text="${product.name}"></span><br>
-                    Số lượng: <span th:text="${product.quantity}"></span><br>
-                    Giá trên món: <span th:text="${product.price}"></span>
+                    Tên hàng: <span th:text="${product.getProductName()}"></span><br>
+                    Số lượng: <span th:text="${product.getQuantity()}"></span><br>
+                    Giá trên món: <span th:text="${product.getUnitPrice()}"></span><br>
+                    Tổng giá trên món: <span th:text="${product.getLineTotal()}"></span>
                 </li>
             </ul>
-            <p>Tổng Giá tiền: <span th:text="${productPrice}"></span></p>
+            <p>Tổng Giá tiền: <span th:text="${totalPrice}"></span></p>
             <p>Địa chỉ giao: <span th:text="${address}"></span></p>
         </div>
         <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.</p>

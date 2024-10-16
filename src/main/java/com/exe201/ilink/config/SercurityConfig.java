@@ -43,7 +43,7 @@ public class SercurityConfig {
                         "/product/details",
                         "/order/**",
                         "/shop/**",
-                        "cancel", "success").permitAll()
+                        "/payment/**").permitAll()
                     .requestMatchers("/account/**", "/create-payment-link").hasAnyAuthority("BUYER", "SELLER")
                     .requestMatchers("/product/shop", "/product/new", "/product/edit", "product/picture").hasAnyAuthority("SELLER", "MANAGER")
                     .requestMatchers("/product/**", "/shop/**", "/category/new").hasAnyAuthority("MANAGER")

@@ -25,7 +25,7 @@ public class CustomerOrderController {
     @PostMapping("/saved-order")
     public ResponseEntity<Object> getOrderDetails(@RequestBody OrderInfo orderInfo
     ) {
-        customerOrderService.saveOrder(orderInfo);
+//        customerOrderService.saveOrder(orderInfo);
         return ResponseBuilder.responseBuilder(HttpStatus.OK, "Successfully stored information");
     }
 

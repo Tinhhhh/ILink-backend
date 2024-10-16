@@ -43,7 +43,6 @@ public class AccountServiceImplement implements AccountService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
-    private final GenericConverter<Account> genericConverter;
     private final ShopRepository shopRepository;
     private final RoleRepository roleRepository;
 
