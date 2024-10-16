@@ -1,81 +1,49 @@
 package com.exe201.ilink.controller;
 
+import com.exe201.ilink.model.exception.ResponseBuilder;
+import com.exe201.ilink.model.payload.response.PaymentStatementResponse;
+import com.exe201.ilink.service.CustomerOrderService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import vn.payos.PayOS;
-import vn.payos.type.CheckoutResponseData;
-import vn.payos.type.ItemData;
-import vn.payos.type.PaymentData;
-
-import java.util.Date;
+import org.springframework.web.bind.annotation.RequestParam;
+import payment.CheckoutService;
 
 @Controller
+@Tag(name = "Checkout", description = "Method for checkout settings")
+@RequiredArgsConstructor
 public class CheckoutController {
-    private final PayOS payOS;
 
-    public CheckoutController(PayOS payOS) {
-        super();
-        this.payOS = payOS;
-    }
+    private final CheckoutService checkoutService;
+    private final CustomerOrderService customerOrderService;
 
-    @RequestMapping(value = "/")
-    public String Index() {
-        return "PAYMENT_INDEX";
-    }
+    @RequestMapping(value = {"/success", "/cancel"})
+    public ResponseEntity<Object> Success(@RequestParam("id") String paymentId,
+                                          @RequestParam("code") String paymentCode,
+                                          @RequestParam("status") String paymentStatus,
+                                          @RequestParam("orderCode") String orderCode,
+                                          @RequestParam("cancel") boolean cancel) {
 
-    @RequestMapping(value = "/success")
-    public String Success() {
-        return "success";
-    }
+        PaymentStatementResponse object = PaymentStatementResponse.builder()
+            .paymentId(paymentId)
+            .paymentCode(paymentCode)
+            .paymentStatus(paymentStatus)
+            .orderCode(orderCode)
+            .cancel(cancel)
+            .build();
 
-    @RequestMapping(value = "/cancel")
-    public String Cancel() {
-        return "cancel";
+        return ResponseBuilder.responseBuilderWithData(HttpStatus.OK, "Successfully status", object);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/create-payment-link", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public void checkout(HttpServletRequest request, HttpServletResponse httpServletResponse) {
-        try {
-            final String baseUrl = getBaseUrl(request);
-            final String productName = "Mì tôm hảo hảo ly";
-            final String description = "Thanh toan don hang";
-            final String returnUrl = baseUrl + "/success";
-            final String cancelUrl = baseUrl + "/cancel";
-            final int price = 2000;
-            // Gen order code
-            String currentTimeString = String.valueOf(new Date().getTime());
-            long orderCode = Long.parseLong(currentTimeString.substring(currentTimeString.length() - 6));
-            ItemData item = ItemData.builder().name(productName).quantity(1).price(price).build();
-            PaymentData paymentData = PaymentData.builder().orderCode(orderCode).amount(price).description(description)
-                .returnUrl(returnUrl).cancelUrl(cancelUrl).item(item).build();
-            CheckoutResponseData data = payOS.createPaymentLink(paymentData);
-
-            String checkoutUrl = data.getCheckoutUrl();
-
-            httpServletResponse.setHeader("Location", checkoutUrl);
-            httpServletResponse.setStatus(302);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public ResponseEntity<Object> checkout(HttpServletRequest request) throws Exception {
+        return ResponseBuilder.responseBuilderWithData(HttpStatus.OK, "Successfully created payment link", checkoutService.checkout(request));
     }
-
-    private String getBaseUrl(HttpServletRequest request) {
-        String scheme = request.getScheme();
-        String serverName = request.getServerName();
-        int serverPort = request.getServerPort();
-        String contextPath = request.getContextPath();
-
-        String url = scheme + "://" + serverName;
-        if ((scheme.equals("http") && serverPort != 80) || (scheme.equals("https") && serverPort != 443)) {
-            url += ":" + serverPort;
-        }
-        url += contextPath;
-        return url;
-    }
-
 
 }

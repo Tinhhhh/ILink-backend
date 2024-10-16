@@ -1,9 +1,11 @@
-package com.exe201.ilink.controller;
-
+package payment;
 
 import com.exe201.ilink.model.payload.request.CreatePaymentLinkRequestBody;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import vn.payos.PayOS;
 import vn.payos.type.CheckoutResponseData;
@@ -14,15 +16,11 @@ import vn.payos.type.PaymentLinkData;
 import java.util.Date;
 import java.util.Map;
 
-@RestController
-@RequestMapping("/order")
-public class OrderController {
-    private final PayOS payOS;
+@Service
+@RequiredArgsConstructor
+public class PaymentOrderService {
 
-    public OrderController(PayOS payOS) {
-        super();
-        this.payOS = payOS;
-    }
+    private final PayOS payOS;
 
     @PostMapping(path = "/create")
     public ObjectNode createPaymentLink(@RequestBody CreatePaymentLinkRequestBody RequestBody) {

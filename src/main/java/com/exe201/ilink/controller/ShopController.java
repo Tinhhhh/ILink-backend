@@ -20,7 +20,7 @@ public class ShopController {
 
     private final ShopService shopService;
 
-    @GetMapping("/shop")
+    @GetMapping("/get")
     public ResponseEntity<Object> getShop(@NotNull @RequestParam("shopId") Long shopId) {
         return ResponseBuilder.responseBuilderWithData(HttpStatus.OK, "Successfully retrieved Shop information", shopService.getShopById(shopId));
     }

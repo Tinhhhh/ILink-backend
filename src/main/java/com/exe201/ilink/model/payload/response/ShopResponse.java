@@ -1,4 +1,4 @@
-package com.exe201.ilink.model.payload.dto;
+package com.exe201.ilink.model.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShopDTO {
+public class ShopResponse {
 
     @JsonProperty("shop_id")
     private Long shopId;
@@ -32,5 +32,8 @@ public class ShopDTO {
 
     @JsonProperty("created_date")
     private Date createdDate;
+
+    @JsonProperty("shop_avatar")
+    private String shopAvatar;
 
 }

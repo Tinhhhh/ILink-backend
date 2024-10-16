@@ -38,13 +38,13 @@ public class SercurityConfig {
             .cors(withDefaults())
             .authorizeHttpRequests(request ->
                 request.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/auth/**",
-                        "/post/shop","/post/all", "/post/details",
+                        "/post/shop", "/post/all", "/post/details",
                         "/category/all",
                         "/product/details",
                         "/order/**",
-                        "/payment/**",
-                        "PAYMENT_INDEX", "cancel","success", "/create-payment-link").permitAll()
-                    .requestMatchers("/account/**").hasAnyAuthority("BUYER", "SELLER")
+                        "/shop/**",
+                        "cancel", "success").permitAll()
+                    .requestMatchers("/account/**", "/create-payment-link").hasAnyAuthority("BUYER", "SELLER")
                     .requestMatchers("/product/shop", "/product/new", "/product/edit", "product/picture").hasAnyAuthority("SELLER", "MANAGER")
                     .requestMatchers("/product/**", "/shop/**", "/category/new").hasAnyAuthority("MANAGER")
                     .requestMatchers("/admin/**").hasAuthority("ADMIN")
