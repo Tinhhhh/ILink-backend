@@ -2,6 +2,7 @@ package com.exe201.ilink.config;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import vn.payos.PayOS;
 
 import java.util.Arrays;
 
@@ -22,6 +24,20 @@ import java.util.Arrays;
 public class BeanConfig {
 
     private final UserDetailsService userDetailsService;
+
+    @Value("${PAYOS_CLIENT_ID}")
+    private String clientId;
+
+    @Value("${PAYOS_API_KEY}")
+    private String apiKey;
+
+    @Value("${PAYOS_CHECKSUM_KEY}")
+    private String checksumKey;
+
+    @Bean
+    public PayOS payOS() {
+        return new PayOS(clientId, apiKey, checksumKey);
+    }
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
