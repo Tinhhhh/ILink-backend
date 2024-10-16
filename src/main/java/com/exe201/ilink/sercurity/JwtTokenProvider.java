@@ -9,10 +9,14 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component
 public class JwtTokenProvider {
@@ -54,9 +58,18 @@ public class JwtTokenProvider {
             .setSubject(username)
             .setIssuedAt(new Date(System.currentTimeMillis()))
             .setExpiration(new Date(System.currentTimeMillis() + expiration))
+            .claim("role", populateAuthorities(authentication.getAuthorities()))
             .signWith(key())
             .compact();
         return token;
+    }
+
+    private String populateAuthorities(Collection<? extends GrantedAuthority> authorities) {
+        Set<String> authoritiesSet = new HashSet<>();
+        for (GrantedAuthority authority : authorities) {
+            authoritiesSet.add(authority.getAuthority());
+        }
+        return String.join(",", authoritiesSet);
     }
 
     private Key key() {

@@ -22,8 +22,8 @@ public class CustomerOrderController {
 
     @Operation(
         summary = "pay for the order in the shop and save order infor for buyer")
-    @PostMapping("/checkout")
-    public ResponseEntity<Object> checkoutOrder(@RequestBody OrderInfo orderInfo
+    @PostMapping("/saved-order")
+    public ResponseEntity<Object> getOrderDetails(@RequestBody OrderInfo orderInfo
     ) {
         customerOrderService.saveOrder(orderInfo);
         return ResponseBuilder.responseBuilder(HttpStatus.OK, "Successfully stored information");

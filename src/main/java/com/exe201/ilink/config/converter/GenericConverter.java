@@ -14,10 +14,12 @@ public class GenericConverter<T> {
     public GenericConverter(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
 
+
         modelMapper.getConfiguration().setFieldMatchingEnabled(true) // Enable field matching -> MATCH những field có tên giống nhau
             .setFieldAccessLevel(Configuration.AccessLevel.PRIVATE) // Set field access level
             .setAmbiguityIgnored(true) // Ignore ambiguity in property mapping
             .setSkipNullEnabled(false) // Allow mapping null values
+
 
         ;
 

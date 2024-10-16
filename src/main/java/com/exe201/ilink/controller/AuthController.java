@@ -94,6 +94,14 @@ public class AuthController {
         return ResponseBuilder.responseBuilder(HttpStatus.OK, "Password reset successfully");
     }
 
+    @Operation(summary = "Logout of the system", description = "Logout of the system, bearer token (refresh token) is required")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Logged out successfully"), @ApiResponse(responseCode = "401", description = "No JWT token found in the request header")})
+    @PostMapping("/logout")
+    public ResponseEntity<Object> logout(HttpServletRequest request) {
+        authService.logout(request);
+        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Logged out successfully");
+    }
+
 
 //
 //    @Operation(summary = "Social Login in to the system using Google (Mobile)", description = "Login into the system using Google. The response will include an access token and a refresh token")

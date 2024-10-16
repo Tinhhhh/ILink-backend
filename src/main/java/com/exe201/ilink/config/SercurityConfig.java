@@ -37,11 +37,17 @@ public class SercurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
             .cors(withDefaults())
             .authorizeHttpRequests(request ->
-                request.requestMatchers("/account/**").hasAnyAuthority("BUYER", "SELLER")
-                    .requestMatchers("/product/shop", "/product/new","/product/edit","product/details","product/picture").hasAnyAuthority("SELLER","MANAGER")
-                    .requestMatchers("/product/**", "/shop/**","/category/new").hasAnyAuthority( "MANAGER")
+                request.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/auth/**",
+                        "/post/shop", "/post/all", "/post/details",
+                        "/category/all",
+                        "/product/details",
+                        "/order/**",
+                        "/shop/**",
+                        "cancel", "success").permitAll()
+                    .requestMatchers("/account/**", "/create-payment-link").hasAnyAuthority("BUYER", "SELLER")
+                    .requestMatchers("/product/shop", "/product/new", "/product/edit", "product/picture").hasAnyAuthority("SELLER", "MANAGER")
+                    .requestMatchers("/product/**", "/shop/**", "/category/new").hasAnyAuthority("MANAGER")
                     .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/auth/**","/post/**", "/category/all","product/details").permitAll()
                     .anyRequest().authenticated()
             )
             .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)

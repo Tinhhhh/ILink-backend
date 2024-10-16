@@ -33,6 +33,9 @@ public class CustomerOrder {
     @Column(name = "shipped_address")
     private String address;
 
+    @Column(name = "description")
+    private String description;
+
     @JsonProperty("total_price")
     @Column(name = "total_price")
     private double totalPrice;
@@ -44,11 +47,6 @@ public class CustomerOrder {
     @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
     private Date createdDate;
-
-    @JsonIgnore
-    @LastModifiedDate
-    @Column(name = "last_modified_date")
-    private Date lastModifiedDate;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderDetail> orderDetails;

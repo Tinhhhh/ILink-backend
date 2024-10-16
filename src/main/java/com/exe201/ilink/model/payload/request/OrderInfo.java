@@ -21,18 +21,18 @@ public class OrderInfo {
     @JsonProperty("account_id")
     private UUID accountId;
 
-    @JsonProperty("order_code")
-    private String orderCode;
+    @JsonProperty("customer_name")
+    private String customerName;
 
     @JsonProperty("shipped_address")
     private String address;
 
-    private String status;
+    private String description;
 
     private List<OrderProductDTO> products;
 
     @JsonProperty("total_price")
-    private double totalPrice;
+    private Double totalPrice;
 
     @JsonProperty("payment_date")
     private Date paymentDate;

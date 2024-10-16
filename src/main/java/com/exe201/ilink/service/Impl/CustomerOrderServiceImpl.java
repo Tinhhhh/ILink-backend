@@ -12,6 +12,9 @@ import com.exe201.ilink.repository.CustomerOrderRepository;
 import com.exe201.ilink.service.CustomerOrderService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.config.Configuration;
+import org.modelmapper.convention.MatchingStrategies;
+import org.modelmapper.spi.MatchingStrategy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +24,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 
     private final AccountRepository accountRepository;
     private final CustomerOrderRepository orderRepository;
-    private final GenericConverter<OrderInfo> orderInfoConverter;
+    private final GenericConverter<CustomerOrder> orderInfoConverter;
     private final ModelMapper modelMapper;
 
     @Override
@@ -33,7 +36,8 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
             throw new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR,"Request fails. Role is not valid");
         }
 
-        CustomerOrder order = modelMapper.map(orderInfo, CustomerOrder.class);
+        CustomerOrder order = orderInfoConverter.toEntity(orderInfo, CustomerOrder.class);
+        order.setAccount(account);
 
 
     }
