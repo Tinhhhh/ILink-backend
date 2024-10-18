@@ -108,9 +108,9 @@ public class ProductServiceImplement implements ProductService {
         Sort sort = Sort.by(sortBy.getDirection(), sortBy.getField());
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
         Specification<Product> spec = Specification.where(ProductSpecification.hasProdName(keyword))
-                .or(ProductSpecification.hasCateName(keyword))
-                .or(ProductSpecification.hasShopName(keyword))
-                .or(ProductSpecification.hasPrice(minPrice, maxPrice));
+            .or(ProductSpecification.hasCateName(keyword))
+            .or(ProductSpecification.hasShopName(keyword))
+            .or(ProductSpecification.hasPrice(minPrice, maxPrice));
 
         Page<Product> productContent = productRepository.findAll(spec, pageable);
         return getProductResponse(productContent);

@@ -16,4 +16,5 @@ public class AppConstants {
     public final String DEFAULT_PRODUCT_SORT_DATE_ASC = "latestdate";
     public final String DEFAULT_PRODUCT_SORT_DATE_DSC = "newestdate";
 
+
 }

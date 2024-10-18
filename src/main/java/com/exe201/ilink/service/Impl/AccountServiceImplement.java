@@ -1,7 +1,6 @@
 package com.exe201.ilink.service.Impl;
 
 import com.exe201.ilink.Util.AccountSpecification;
-import com.exe201.ilink.config.converter.GenericConverter;
 import com.exe201.ilink.model.entity.Account;
 import com.exe201.ilink.model.entity.Role;
 import com.exe201.ilink.model.entity.Shop;
@@ -149,7 +148,7 @@ public class AccountServiceImplement implements AccountService {
 
         AccountInfoResponse accountInfoResponse = modelMapper.map(account, AccountInfoResponse.class);
 
-        if (RoleName.contains(accountInfoResponse.getRoleName()) && accountInfoResponse.getRoleName().equals(RoleName.SELLER.getRoleName())){
+        if (RoleName.contains(accountInfoResponse.getRoleName()) && accountInfoResponse.getRoleName().equals(RoleName.SELLER.getRoleName())) {
             Shop shop = shopRepository.findByAccountId(accountInfoResponse.getAccountId())
                 .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "No shop found with this account"));
             accountInfoResponse.setShopId(shop.getShopId());

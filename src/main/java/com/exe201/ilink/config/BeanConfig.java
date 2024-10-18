@@ -35,6 +35,11 @@ public class BeanConfig {
     private String checksumKey;
 
     @Bean
+    public static PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public PayOS payOS() {
         return new PayOS(clientId, apiKey, checksumKey);
     }
@@ -42,11 +47,6 @@ public class BeanConfig {
     @Bean
     public CheckoutService checkoutService(PayOS payOS, CustomerOrderService customerOrderService) {
         return new CheckoutService(payOS, customerOrderService);
-    }
-
-    @Bean
-    public static PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
     @Bean

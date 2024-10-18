@@ -2,18 +2,16 @@ package com.exe201.ilink.model.payload.request;
 
 import com.exe201.ilink.model.payload.dto.OrderProductDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Column;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
+import lombok.*;
 
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,8 +26,11 @@ public class OrderInfo {
     @JsonProperty("shipped_address")
     private String address;
 
-    @Size(max = 100)
     private String description;
+
+    @NotEmpty(message = "Phone cannot be blank")
+    @Pattern(regexp = "^(84|0[3|5|7|8|9])[0-9]{8}$", message = "Please enter a valid(+84) phone number")
+    private String phone;
 
     private List<OrderProductDTO> products;
 

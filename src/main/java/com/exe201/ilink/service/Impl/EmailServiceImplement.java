@@ -136,15 +136,19 @@ public class EmailServiceImplement implements EmailService {
 
     @Override
     @Async
-    public void sendMimeMessageForSeller(String seller, String buyer, String sellerEmail,String code, List<OrderProductDTO> product, int totalPrice, String address, String template, String subject) throws MessagingException {
+    public void sendMimeMessageForSeller(String seller, String buyer, String date, String time, String sellerEmail, String code, List<OrderProductDTO> product, int totalPrice, String customer, String phone, String address, String template, String subject) throws MessagingException {
         try {
             String senderNickName = "Customer Service Team at Souvi";
             Context context = new Context();
             context.setVariable("sellerName", seller);
             context.setVariable("buyerName", buyer);
-            context.setVariable("orderCode",code);
+            context.setVariable("date", date);
+            context.setVariable("time", time);
+            context.setVariable("orderCode", code);
             context.setVariable("productList", product);
             context.setVariable("totalPrice", totalPrice);
+            context.setVariable("customer", customer);
+            context.setVariable("phone", phone);
             context.setVariable("address", address);
             extractTemplate(sellerEmail, template, subject, senderNickName, context);
         } catch (Exception exception) {
