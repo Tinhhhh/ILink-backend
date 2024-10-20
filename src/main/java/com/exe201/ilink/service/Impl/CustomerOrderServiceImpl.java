@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -184,10 +185,10 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
                 });
 
                 // Định dạng DateTimeFormatter để parse chuỗi thành LocalDateTime
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                String formattedDateTime = customerOrder.getCreatedDate().toString().substring(0, 19);
                 // Parse chuỗi thành LocalDateTime
-                LocalDateTime dateTime = LocalDateTime.parse(customerOrder.getCreatedDate().toString(), formatter);
+                LocalDateTime dateTime = LocalDateTime.parse(formattedDateTime, formatter);
 
                 // Tách ngày và giờ
                 LocalDate date = dateTime.toLocalDate();  // Lấy phần ngày
@@ -258,14 +259,30 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         Sort sort = Sort.by(sortBy.getDirection(), sortBy.getField());
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
 
+        Date[] dates = adjustedDate(startDate, endDate);
+
         Specification<CustomerOrder> spec = Specification.where(
                 CustomerOrderSpecification.hasStatus(status))
             .and(CustomerOrderSpecification.hasBuyerId(buyerId))
             .and((CustomerOrderSpecification.hasSellerId(sellerId))
-                .and((CustomerOrderSpecification.isCreatedBetween(startDate, endDate)))
+                .and((CustomerOrderSpecification.isCreatedBetween(dates[0], dates[1])))
             );
 
         return getOrderHistoryResponse(spec, pageable);
+    }
+
+    private static Date[] adjustedDate(Date startDate, Date endDate) {
+        // Chuyển đổi startDate thành LocalDateTime và thiết lập thời gian là 00:00:00
+        LocalDateTime startDateTime = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().atStartOfDay();
+
+        // Chuyển đổi endDate thành LocalDateTime và thiết lập thời gian là 23:59:59
+        LocalDateTime endDateTime = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().atTime(23, 59, 59);
+
+        // Chuyển đổi LocalDateTime về Date
+        Date adjustedStartDate = Date.from(startDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        Date adjustedEndDate = Date.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant());
+
+        return new Date[]{adjustedStartDate, adjustedEndDate};
     }
 
 
@@ -274,10 +291,12 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         Sort sort = Sort.by(sortBy.getDirection(), sortBy.getField());
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
 
+        Date[] dates = adjustedDate(startDate, endDate);
+
         Specification<CustomerOrder> spec = Specification.where(
                 CustomerOrderSpecification.hasStatus(status))
             .and(CustomerOrderSpecification.hasBuyerId(buyerId))
-            .and((CustomerOrderSpecification.isCreatedBetween(startDate, endDate)));
+            .and((CustomerOrderSpecification.isCreatedBetween(dates[0], dates[1])));
 
         return getOrderHistoryResponse(spec, pageable);
     }
@@ -287,10 +306,12 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         Sort sort = Sort.by(sortBy.getDirection(), sortBy.getField());
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
 
+        Date[] dates = adjustedDate(startDate, endDate);
+
         Specification<CustomerOrder> spec = Specification.where(
                 CustomerOrderSpecification.hasStatus(status))
             .and((CustomerOrderSpecification.hasSellerId(sellerId))
-                .and((CustomerOrderSpecification.isCreatedBetween(startDate, endDate)))
+                .and((CustomerOrderSpecification.isCreatedBetween(dates[0], dates[1])))
             );
 
         return getOrderHistoryResponse(spec, pageable);
@@ -298,20 +319,27 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 
     @Override
     public RegistrationInfoResponse getRegistrationDetailsForAdmin(Date startDate, Date endDate) {
-
         RegistrationInfoResponse registrationInfoResponse = new RegistrationInfoResponse();
 
-        List<Account> accounts = accountRepository.findByCreatedDateBetween(startDate, endDate);
+        Date[] dates = adjustedDate(startDate, endDate);
+
+
+        List<Account> accounts = accountRepository.findByCreatedDateBetween(dates[0], dates[1]);
         registrationInfoResponse.setTotalCustomers(accounts.size());
 
-        List<Product> products = productRepository.findByCreatedDateBetween(startDate, endDate);
+        List<Product> products = productRepository.findByCreatedDateBetween(dates[0], dates[1]);
         registrationInfoResponse.setTotalProducts(products.size());
 
-        List<CustomerOrder> orders = customerOrderRepository.findByCreatedDateBetween(startDate, endDate);
-        int total = orders.stream().mapToInt(CustomerOrder::getTotalPrice).sum();
+        List<CustomerOrder> orders = customerOrderRepository.findByCreatedDateBetween(dates[0], dates[1]);
+
+        int total = orders.stream()
+            .filter(customerOrder -> customerOrder.getStatus().equals(PaymentStatus.PAID.name()))
+            .mapToInt(CustomerOrder::getTotalPrice)
+            .sum();
+
         registrationInfoResponse.setTotalSales(total);
 
-        LocalDate[] localDates = DateUtil.getPreviousMonthRange(startDate, endDate);
+        LocalDate[] localDates = DateUtil.getPreviousMonthRange(dates[0], dates[1]);
         Date previousStart = DateUtil.toDate(localDates[0]);
         Date previousEnd = DateUtil.toDate(localDates[1]);
 

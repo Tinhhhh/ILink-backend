@@ -1,7 +1,11 @@
 package com.exe201.ilink.model.payload.request;
 
+import com.exe201.ilink.config.converter.CustomDateDeserializer;
 import com.exe201.ilink.model.payload.dto.OrderProductDTO;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
@@ -37,6 +41,7 @@ public class OrderInfo {
     @JsonProperty("total_price")
     private int totalPrice;
 
+    @JsonDeserialize(using = CustomDateDeserializer.class)
     @JsonProperty("payment_date")
     private Date paymentDate;
 
