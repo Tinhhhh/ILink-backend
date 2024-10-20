@@ -22,7 +22,6 @@ public class GenericConverter<T> {
         ;
 
 
-
 //        modelMapper.typeMap(ProductRequest.class, Product.class).addMappings(mapper -> {
 //            mapper.skip(Product::setShop); // Bỏ qua ánh xạ shopId với thuộc tính Shop của Product
 //            mapper.skip(Product::setCategory); // Bỏ qua ánh xạ categoryId với thuộc tính Category của Product

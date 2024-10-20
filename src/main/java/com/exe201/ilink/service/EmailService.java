@@ -23,5 +23,5 @@ public interface EmailService {
 
     void sendMimeMessageWithHtml(String name, String to, String content, String template, String subject) throws MessagingException;
 
-    void sendMimeMessageForSeller(String seller, String buyer, String sellerEmail,String code, List<OrderProductDTO> product, int totalPrice, String address, String template, String subject) throws MessagingException;
+    void sendMimeMessageForSeller(String seller, String buyer, String sellerEmail, String date, String time, String code, List<OrderProductDTO> product, int totalPrice, String customer, String phone, String address, String template, String subject) throws MessagingException;
 }

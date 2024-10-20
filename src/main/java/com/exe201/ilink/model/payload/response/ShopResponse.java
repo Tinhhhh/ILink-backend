@@ -20,6 +20,8 @@ public class ShopResponse {
     @JsonProperty("shop_name")
     private String shopName;
 
+    private String contact;
+
     private String description;
 
     private String address;

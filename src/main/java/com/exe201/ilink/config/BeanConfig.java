@@ -35,6 +35,11 @@ public class BeanConfig {
     private String checksumKey;
 
     @Bean
+    public static PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public PayOS payOS() {
         return new PayOS(clientId, apiKey, checksumKey);
     }
@@ -42,11 +47,6 @@ public class BeanConfig {
     @Bean
     public CheckoutService checkoutService(PayOS payOS, CustomerOrderService customerOrderService) {
         return new CheckoutService(payOS, customerOrderService);
-    }
-
-    @Bean
-    public static PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
     @Bean
@@ -62,7 +62,7 @@ public class BeanConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000","http://souvi.s3-website-ap-northeast-1.amazonaws.com"));
         configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

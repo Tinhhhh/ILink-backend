@@ -41,13 +41,14 @@ public class SercurityConfig {
                         "/post/shop", "/post/all", "/post/details",
                         "/category/all",
                         "/product/details",
-                        "/order/**",
                         "/shop/**",
                         "/payment/**").permitAll()
+                    .requestMatchers("/order/buyer/**").hasAuthority("BUYER")
                     .requestMatchers("/account/**", "/create-payment-link").hasAnyAuthority("BUYER", "SELLER")
                     .requestMatchers("/product/shop", "/product/new", "/product/edit", "product/picture").hasAnyAuthority("SELLER", "MANAGER")
+                    .requestMatchers("/order/seller/**").hasAnyAuthority("SELLER")
                     .requestMatchers("/product/**", "/shop/**", "/category/new").hasAnyAuthority("MANAGER")
-                    .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                    .requestMatchers("/admin/**","order/admin/**").hasAuthority("ADMIN")
                     .anyRequest().authenticated()
             )
             .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)

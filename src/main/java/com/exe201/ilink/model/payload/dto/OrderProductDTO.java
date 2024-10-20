@@ -26,4 +26,6 @@ public class OrderProductDTO {
     @JsonProperty("line_total")
     private int lineTotal;
 
+    private String image;
+
 }

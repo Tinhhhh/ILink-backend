@@ -49,7 +49,7 @@ public class AccountSpecification {
         return (root, query, cb) -> {
             String upperRole;
             if (role != null) {
-                 upperRole = role.toUpperCase();
+                upperRole = role.toUpperCase();
             } else {
                 return null;
             }

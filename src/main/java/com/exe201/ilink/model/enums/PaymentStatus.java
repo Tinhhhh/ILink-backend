@@ -1,5 +1,8 @@
 package com.exe201.ilink.model.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum PaymentStatus {
     PAID("PAID"),
     PENDING("PENDING"),
@@ -10,5 +13,14 @@ public enum PaymentStatus {
 
     PaymentStatus(String status) {
         this.status = status;
+    }
+
+    public static boolean isContains(String text) {
+        for (PaymentStatus p : PaymentStatus.values()) {
+            if (p.status.equalsIgnoreCase(text)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
