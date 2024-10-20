@@ -31,6 +31,9 @@ public class Shop {
     @Column(name = "shop_name")
     private String shopName;
 
+    @Column(name = "contact")
+    private String contact;
+
     @Column(name = "description")
     private String description;
 

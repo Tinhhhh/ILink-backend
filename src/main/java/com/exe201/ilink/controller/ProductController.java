@@ -78,7 +78,7 @@ public class ProductController {
                                              @RequestParam("picture_file") MultipartFile file
     ) throws IOException {
         productService.addPicture(productId, file);
-        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Picture profile picture updated successfully");
+        return ResponseBuilder.responseBuilder(HttpStatus.OK, "Picture updated successfully");
     }
 
     @PutMapping(value = "/edit")

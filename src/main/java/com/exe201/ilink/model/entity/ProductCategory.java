@@ -22,6 +22,9 @@ public class ProductCategory {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "image")
+    private String image;
+
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Product> products;
 

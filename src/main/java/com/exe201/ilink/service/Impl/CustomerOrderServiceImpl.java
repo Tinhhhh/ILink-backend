@@ -78,13 +78,12 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         orderInfo.getProducts().forEach(orderProductDTO -> {
             Product product = productRepository.findById(orderProductDTO.getProductId())
                 .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Request fails. Product not found"));
-            product.setStock(product.getStock() - orderProductDTO.getQuantity());
 
             if (!product.getStatus().equals(ProductStatus.ACTIVE.getStatus())) {
                 throw new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Request fails. Product is not active");
             }
 
-            if (product.getStock() < 0) {
+            if ((product.getStock() - orderProductDTO.getQuantity()) < 0) {
                 throw new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Request fails. Product stock is not enough");
             }
 
@@ -342,6 +341,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
                             .quantity(orderDetail.getQuantity())
                             .unitPrice(orderDetail.getPrice())
                             .lineTotal(orderDetail.getLineTotal())
+                            .image(orderDetail.getProduct().getImage())
                             .build())
                         .forEach(productDTOList::add);
 

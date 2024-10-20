@@ -28,6 +28,7 @@ public class ShopServiceImplement implements ShopService {
         return ShopResponse.builder()
             .shopId(shop.getShopId())
             .shopName(shop.getShopName())
+            .contact(shop.getContact())
             .description(shop.getDescription())
             .address(shop.getAddress())
             .reputation(shop.getReputation())

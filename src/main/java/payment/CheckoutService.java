@@ -26,8 +26,10 @@ public class CheckoutService {
         final String baseUrl = getBaseUrl(request);
 //        final String productName = "Mì tôm hảo hảo ly";
 //        final String description = "Thanh toan don hang";
-        final String returnUrl = baseUrl + "/payment/success";
-        final String cancelUrl = baseUrl + "/payment/cancel";
+//        final String returnUrl = baseUrl + "/#/paymentSuccess";
+        final String returnUrl = "http://souvi.s3-website-ap-northeast-1.amazonaws.com/#/paymentSuccess";
+//        final String cancelUrl = baseUrl + "/#/paymentError";
+        final String cancelUrl = "http://souvi.s3-website-ap-northeast-1.amazonaws.com/#/paymentError";
         final int price = orderInfo.getTotalPrice();
 
         List<ItemData> items = orderInfo.getProducts().stream().map(product -> ItemData.builder().name(product.getProductName())
