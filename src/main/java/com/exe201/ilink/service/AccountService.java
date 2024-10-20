@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public interface AccountService {
 
-    Account getCurrentAccountInfo(HttpServletRequest request);
+    AccountInfoResponse getCurrentAccountInfo(HttpServletRequest request);
 
     void changePassword(ChangePasswordRequest changePasswordRequest, HttpServletRequest request);
 

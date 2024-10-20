@@ -46,7 +46,7 @@ public class AccountServiceImplement implements AccountService {
     private final RoleRepository roleRepository;
 
     @Override
-    public Account getCurrentAccountInfo(HttpServletRequest request) {
+    public AccountInfoResponse getCurrentAccountInfo(HttpServletRequest request) {
 
         String token = extractTokenFormJWT(request);
 
@@ -63,12 +63,24 @@ public class AccountServiceImplement implements AccountService {
             throw new ILinkException(HttpStatus.UNAUTHORIZED, "Token is invalid or is expired");
         }
 
-        return account;
+        Shop shop = shopRepository.findByAccountId(account.getAccountId())
+            .orElse(null);
+
+        AccountInfoResponse accountInfo = modelMapper.map(account, AccountInfoResponse.class);
+
+        if (shop!= null){
+            accountInfo.setShopId(shop.getShopId());
+            accountInfo.setShopName(shop.getShopName());
+        }
+
+        return accountInfo;
     }
 
     @Override
     public void changePassword(ChangePasswordRequest changePasswordRequest, HttpServletRequest request) {
-        Account account = getCurrentAccountInfo(request);
+        String token = extractTokenFormJWT(request);
+        String userEmail = jwtTokenProvider.getUsername(token);
+        Account account = accountRepository.findByEmail(userEmail).orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "No account found with this token"));
 
         if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), account.getPassword())) {
             throw new ILinkException(HttpStatus.BAD_REQUEST, "Your old password is incorrect");

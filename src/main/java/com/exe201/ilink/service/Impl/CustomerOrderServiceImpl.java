@@ -1,6 +1,8 @@
 package com.exe201.ilink.service.Impl;
 
 import com.exe201.ilink.Util.CustomerOrderSpecification;
+import com.exe201.ilink.Util.DateUtil;
+import com.exe201.ilink.Util.ProductSpecification;
 import com.exe201.ilink.model.entity.*;
 import com.exe201.ilink.model.enums.*;
 import com.exe201.ilink.model.exception.ILinkException;
@@ -8,15 +10,17 @@ import com.exe201.ilink.model.payload.dto.OrderProductDTO;
 import com.exe201.ilink.model.payload.request.OrderInfo;
 import com.exe201.ilink.model.payload.response.OrderHistoryElement;
 import com.exe201.ilink.model.payload.response.OrderHistoryResponse;
-import com.exe201.ilink.model.payload.response.PaymentStatementResponse;
+import com.exe201.ilink.model.payload.response.RegistrationInfoResponse;
 import com.exe201.ilink.repository.*;
 import com.exe201.ilink.service.CustomerOrderService;
 import com.exe201.ilink.service.EmailService;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +48,9 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
     private final TransactionRepository transactionRepository;
     private final EmailService emailService;
     private final ShopRepository shopRepository;
+
+    @Value("${application.frontend.url}")
+    private String checkoutUrl;
 
     @Override
     public void saveOrder(OrderInfo orderInfo, String orderCode) {
@@ -108,7 +115,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 
     @Override
     @Transactional
-    public PaymentStatementResponse updateOrder(String paymentId, String paymentCode, String paymentStatus, String orderCode, boolean cancel) {
+    public void updateOrder(String paymentId, String paymentCode, String paymentStatus, String orderCode, boolean cancel, HttpServletResponse response) {
 
         CustomerOrder customerOrder = customerOrderRepository.findByCode(orderCode)
             .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Request fails. Order not found"));
@@ -230,13 +237,20 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 
         }
 
-        return PaymentStatementResponse.builder()
-            .paymentId(paymentId)
-            .paymentCode(paymentCode)
-            .paymentStatus(paymentStatus)
-            .orderCode(orderCode)
-            .cancel(cancel)
-            .build();
+//        return PaymentStatementResponse.builder()
+//            .paymentId(paymentId)
+//            .paymentCode(paymentCode)
+//            .paymentStatus(paymentStatus)
+//            .orderCode(orderCode)
+//            .cancel(cancel)
+//            .build();
+        if (!paymentStatus.equals(PaymentStatus.PAID.name())) {
+            checkoutUrl += "/#/paymentError";
+        } else {
+            checkoutUrl += "/#/paymentSuccess";
+        }
+        response.setHeader("Location", checkoutUrl);
+        response.setStatus(302);
     }
 
     @Override
@@ -280,6 +294,38 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
             );
 
         return getOrderHistoryResponse(spec, pageable);
+    }
+
+    @Override
+    public RegistrationInfoResponse getRegistrationDetailsForAdmin(Date startDate, Date endDate) {
+
+        RegistrationInfoResponse registrationInfoResponse = new RegistrationInfoResponse();
+
+        List<Account> accounts = accountRepository.findByCreatedDateBetween(startDate, endDate);
+        registrationInfoResponse.setTotalCustomers(accounts.size());
+
+        List<Product> products = productRepository.findByCreatedDateBetween(startDate, endDate);
+        registrationInfoResponse.setTotalProducts(products.size());
+
+        List<CustomerOrder> orders = customerOrderRepository.findByCreatedDateBetween(startDate, endDate);
+        int total = orders.stream().mapToInt(CustomerOrder::getTotalPrice).sum();
+        registrationInfoResponse.setTotalSales(total);
+
+        LocalDate[] localDates = DateUtil.getPreviousMonthRange(startDate, endDate);
+        Date previousStart = DateUtil.toDate(localDates[0]);
+        Date previousEnd = DateUtil.toDate(localDates[1]);
+
+        List<Account> previousAccounts = accountRepository.findByCreatedDateBetween(previousStart, previousEnd);
+        registrationInfoResponse.setCustomersPercentageChanges(calculatePercentageChange(previousAccounts.size(), accounts.size()));
+
+        List<Product> previousProducts = productRepository.findByCreatedDateBetween(previousStart, previousEnd);
+        registrationInfoResponse.setProductPercentageChanges(calculatePercentageChange(previousProducts.size(), products.size()));
+
+        List<CustomerOrder> previousOrders = customerOrderRepository.findByCreatedDateBetween(previousStart, previousEnd);
+        int previousTotal = previousOrders.stream().mapToInt(CustomerOrder::getTotalPrice).sum();
+        registrationInfoResponse.setSalePercentageChanges(calculatePercentageChange(previousTotal, total));
+
+        return registrationInfoResponse;
     }
 
     private OrderHistoryResponse getOrderHistoryResponse(Specification<CustomerOrder> spec, Pageable pageable) {
@@ -379,6 +425,15 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
             .pageNo(customerOrders.getNumber())
             .last(customerOrders.isLast())
             .build();
+    }
+
+    private double calculatePercentageChange(int previous, int current) {
+
+        if (previous == 0) {
+            return 100;
+        }
+
+        return ((double) (current - previous) / previous) * 100;
     }
 
 }
