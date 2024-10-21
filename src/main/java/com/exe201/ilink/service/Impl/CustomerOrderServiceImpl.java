@@ -2,7 +2,6 @@ package com.exe201.ilink.service.Impl;
 
 import com.exe201.ilink.Util.CustomerOrderSpecification;
 import com.exe201.ilink.Util.DateUtil;
-import com.exe201.ilink.Util.ProductSpecification;
 import com.exe201.ilink.model.entity.*;
 import com.exe201.ilink.model.enums.*;
 import com.exe201.ilink.model.exception.ILinkException;
@@ -222,7 +221,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
                         buyerAccount.fullName(),
                         date.toString(),
                         time.toString(),
-                        sellerAccount.getEmail(),
+                        buyerAccount.getEmail(),
                         customerOrder.getCode(),
                         orderProductDTOS,
                         customerOrder.getTotalPrice(),
@@ -271,25 +270,11 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         return getOrderHistoryResponse(spec, pageable);
     }
 
-    private static Date[] adjustedDate(Date startDate, Date endDate) {
-        // Chuyển đổi startDate thành LocalDateTime và thiết lập thời gian là 00:00:00
-        LocalDateTime startDateTime = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().atStartOfDay();
-
-        // Chuyển đổi endDate thành LocalDateTime và thiết lập thời gian là 23:59:59
-        LocalDateTime endDateTime = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().atTime(23, 59, 59);
-
-        // Chuyển đổi LocalDateTime về Date
-        Date adjustedStartDate = Date.from(startDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        Date adjustedEndDate = Date.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant());
-
-        return new Date[]{adjustedStartDate, adjustedEndDate};
-    }
-
-
     @Override
     public OrderHistoryResponse getOrderDetailsForBuyer(int pageNo, int pageSize, ProductSort sortBy, String status, UUID buyerId, Date startDate, Date endDate) {
         Sort sort = Sort.by(sortBy.getDirection(), sortBy.getField());
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+
 
         Date[] dates = adjustedDate(startDate, endDate);
 
@@ -306,6 +291,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         Sort sort = Sort.by(sortBy.getDirection(), sortBy.getField());
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
 
+
         Date[] dates = adjustedDate(startDate, endDate);
 
         Specification<CustomerOrder> spec = Specification.where(
@@ -317,19 +303,23 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         return getOrderHistoryResponse(spec, pageable);
     }
 
+
+
     @Override
     public RegistrationInfoResponse getRegistrationDetailsForAdmin(Date startDate, Date endDate) {
         RegistrationInfoResponse registrationInfoResponse = new RegistrationInfoResponse();
 
         Date[] dates = adjustedDate(startDate, endDate);
 
-
+        //Set total customers
         List<Account> accounts = accountRepository.findByCreatedDateBetween(dates[0], dates[1]);
         registrationInfoResponse.setTotalCustomers(accounts.size());
 
+        //Set total products
         List<Product> products = productRepository.findByCreatedDateBetween(dates[0], dates[1]);
         registrationInfoResponse.setTotalProducts(products.size());
 
+        //Set total sales
         List<CustomerOrder> orders = customerOrderRepository.findByCreatedDateBetween(dates[0], dates[1]);
 
         int total = orders.stream()
@@ -339,21 +329,67 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 
         registrationInfoResponse.setTotalSales(total);
 
+        //Set total transactions
+        int transaction = (int) orders.stream()
+            .filter(customerOrder -> customerOrder.getStatus().equals(PaymentStatus.PAID.name()))
+            .count();
+
+        registrationInfoResponse.setTotalTransactions(transaction);
+
+        //set total commission
+        registrationInfoResponse.setTotalCommission(total * 0.05);
+
+        //Set percentage changes
         LocalDate[] localDates = DateUtil.getPreviousMonthRange(dates[0], dates[1]);
         Date previousStart = DateUtil.toDate(localDates[0]);
         Date previousEnd = DateUtil.toDate(localDates[1]);
 
+        //Set percentage total customers
         List<Account> previousAccounts = accountRepository.findByCreatedDateBetween(previousStart, previousEnd);
         registrationInfoResponse.setCustomersPercentageChanges(calculatePercentageChange(previousAccounts.size(), accounts.size()));
 
+        //Set percentage total products
         List<Product> previousProducts = productRepository.findByCreatedDateBetween(previousStart, previousEnd);
         registrationInfoResponse.setProductPercentageChanges(calculatePercentageChange(previousProducts.size(), products.size()));
 
+        //Set percentage total sales
         List<CustomerOrder> previousOrders = customerOrderRepository.findByCreatedDateBetween(previousStart, previousEnd);
-        int previousTotal = previousOrders.stream().mapToInt(CustomerOrder::getTotalPrice).sum();
+        int previousTotal = previousOrders.stream()
+            .filter(customerOrder -> customerOrder.getStatus().equals(PaymentStatus.PAID.name()))
+            .mapToInt(CustomerOrder::getTotalPrice).sum();
+
         registrationInfoResponse.setSalePercentageChanges(calculatePercentageChange(previousTotal, total));
 
+        //Set percentage total transactions
+        int previousTransaction = (int) previousOrders.stream()
+            .filter(customerOrder -> customerOrder.getStatus().equals(PaymentStatus.PAID.name()))
+            .count();
+
+        registrationInfoResponse.setTransactionPercentageChanges(calculatePercentageChange(previousTransaction, transaction));
+
+        //Set percentage total commission
+        registrationInfoResponse.setCommissionPercentageChanges(calculatePercentageChange((int) (previousTotal * 0.05), (int) (total * 0.05)));
+
         return registrationInfoResponse;
+    }
+
+    private static Date[] adjustedDate(Date startDate, Date endDate) {
+
+        if (startDate == null || endDate == null) {
+            return new Date[]{null, null};
+        }
+
+        // Chuyển đổi startDate thành LocalDateTime và thiết lập thời gian là 00:00:00
+        LocalDateTime startDateTime = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().atStartOfDay();
+
+        // Chuyển đổi endDate thành LocalDateTime và thiết lập thời gian là 23:59:59
+        LocalDateTime endDateTime = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().atTime(23, 59, 59);
+
+        // Chuyển đổi LocalDateTime về Date
+        Date adjustedStartDate = Date.from(startDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        Date adjustedEndDate = Date.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant());
+
+        return new Date[]{adjustedStartDate, adjustedEndDate};
     }
 
     private OrderHistoryResponse getOrderHistoryResponse(Specification<CustomerOrder> spec, Pageable pageable) {

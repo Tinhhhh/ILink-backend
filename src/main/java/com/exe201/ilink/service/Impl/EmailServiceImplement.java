@@ -136,7 +136,7 @@ public class EmailServiceImplement implements EmailService {
 
     @Override
     @Async
-    public void sendMimeMessageForSeller(String seller, String buyer, String date, String time, String sellerEmail, String code, List<OrderProductDTO> product, int totalPrice, String customer, String phone, String address, String template, String subject) throws MessagingException {
+    public void sendMimeMessageForSeller(String seller, String buyer, String date, String time, String sendTo, String code, List<OrderProductDTO> product, int totalPrice, String customer, String phone, String address, String template, String subject) throws MessagingException {
         try {
             String senderNickName = "Customer Service Team at Souvi";
             Context context = new Context();
@@ -150,21 +150,21 @@ public class EmailServiceImplement implements EmailService {
             context.setVariable("customer", customer);
             context.setVariable("phone", phone);
             context.setVariable("address", address);
-            extractTemplate(sellerEmail, template, subject, senderNickName, context);
+            extractTemplate(sendTo, template, subject, senderNickName, context);
         } catch (Exception exception) {
             System.out.println("Error: " + exception.getMessage());
             throw new RuntimeException("Error: " + exception.getMessage());
         }
     }
 
-    private void extractTemplate(String sellerEmail, String template, String subject, String senderNickName, Context context) throws MessagingException, UnsupportedEncodingException {
+    private void extractTemplate(String sentTo, String template, String subject, String senderNickName, Context context) throws MessagingException, UnsupportedEncodingException {
         String text = templateEngine.process(template, context);
         MimeMessage message = getMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF_8_CODING);
         helper.setSubject(subject);
         helper.setPriority(1);
         helper.setFrom(sender, senderNickName);
-        helper.setTo(sellerEmail);
+        helper.setTo(sentTo);
         helper.setText(text, true);
         mailSender.send(message);
     }

@@ -52,7 +52,10 @@ public class PostServiceImplement implements PostService {
             .orElseThrow(() -> new ILinkException(HttpStatus.BAD_REQUEST, "Post creation fails. Shop not found, please contact the administrator."));
 
         //convert request to entity
-        Post newPost = genericConverter.toEntity(postRequest, Post.class);
+//        Post newPost = genericConverter.toEntity(postRequest, Post.class);
+        Post newPost = new Post();
+        newPost.setTitle(postRequest.getTitle());
+        newPost.setDescription(postRequest.getDescription());
         newPost.setShop(shop);
         newPost.setStatus(PostStatus.ACTIVE.getStatus());
         //Save post

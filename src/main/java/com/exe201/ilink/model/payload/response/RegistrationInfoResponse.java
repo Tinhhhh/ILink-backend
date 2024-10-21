@@ -28,5 +28,17 @@ public class RegistrationInfoResponse {
     @JsonProperty(value = "customers_percentage_changes", index = 6)
     private double customersPercentageChanges;
 
+    @JsonProperty(value = "total_transactions", index = 7)
+    private int totalTransactions;
+
+    @JsonProperty(value = "transaction_percentage_changes", index = 8)
+    private double transactionPercentageChanges;
+
+    @JsonProperty(value = "total_commission", index = 9)
+    private double totalCommission;
+
+    @JsonProperty(value = "commission_percentage_changes", index = 10)
+    private double commissionPercentageChanges;
+
 
 }
