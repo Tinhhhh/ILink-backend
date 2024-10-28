@@ -2,6 +2,7 @@ package com.exe201.ilink.service.Impl;
 
 import com.exe201.ilink.Util.CustomerOrderSpecification;
 import com.exe201.ilink.Util.DateUtil;
+import com.exe201.ilink.Util.ProductSpecification;
 import com.exe201.ilink.model.entity.*;
 import com.exe201.ilink.model.enums.*;
 import com.exe201.ilink.model.exception.ILinkException;
@@ -10,6 +11,7 @@ import com.exe201.ilink.model.payload.request.OrderInfo;
 import com.exe201.ilink.model.payload.response.OrderHistoryElement;
 import com.exe201.ilink.model.payload.response.OrderHistoryResponse;
 import com.exe201.ilink.model.payload.response.RegistrationInfoResponse;
+import com.exe201.ilink.model.payload.response.SaleInfoResponse;
 import com.exe201.ilink.repository.*;
 import com.exe201.ilink.service.CustomerOrderService;
 import com.exe201.ilink.service.EmailService;
@@ -35,6 +37,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
@@ -303,8 +306,6 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         return getOrderHistoryResponse(spec, pageable);
     }
 
-
-
     @Override
     public RegistrationInfoResponse getRegistrationDetailsForAdmin(Date startDate, Date endDate) {
         RegistrationInfoResponse registrationInfoResponse = new RegistrationInfoResponse();
@@ -371,6 +372,97 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         registrationInfoResponse.setCommissionPercentageChanges(calculatePercentageChange((int) (previousTotal * 0.05), (int) (total * 0.05)));
 
         return registrationInfoResponse;
+    }
+
+    @Override
+    public SaleInfoResponse getSalesDetailsForSeller(Date startDate, Date endDate, UUID sellerId) {
+
+        if (sellerId == null) {
+            throw new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Request fails. SellerId is required");
+        }
+
+        SaleInfoResponse saleInfoResponse = new SaleInfoResponse();
+
+        Date[] dates = adjustedDate(startDate, endDate);
+
+        Specification<CustomerOrder> spec = Specification.where(
+            CustomerOrderSpecification.hasSellerId(sellerId)
+                .and((CustomerOrderSpecification.isCreatedBetween(dates[0], dates[1])
+                )));
+
+        List<CustomerOrder> orders = customerOrderRepository.findAll(spec);
+
+        //Set total products
+        List<Product> products = productRepository.findByCreatedDateBetween(dates[0], dates[1]);
+        saleInfoResponse.setTotalProducts(products.size());
+
+        //Set total sales
+        orders.forEach(customerOrder -> {
+            if (customerOrder.getStatus().equals(PaymentStatus.PAID.name())) {
+                customerOrder.getOrderDetails().forEach(orderDetail -> {
+                    if (orderDetail.getProduct().getShop().getAccount().getAccountId().equals(sellerId)) {
+                        saleInfoResponse.setTotalSales(saleInfoResponse.getTotalSales() + orderDetail.getLineTotal());
+                    }
+                });
+            }
+        });
+
+        //Set total net sales
+        saleInfoResponse.setTotalNetSales(saleInfoResponse.getTotalSales() * 0.95);
+
+        //Set pending products and cancelled products
+
+        Shop shop = shopRepository.findByAccountId(sellerId)
+            .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Request fails. Shop not found"));
+
+        Specification<Product> productSpec = Specification.where(
+            ProductSpecification.hasShopId(shop.getShopId()
+            ));
+
+        List<Product> shopProducts = productRepository.findAll(productSpec);
+
+        //Set pending products and cancelled products
+        saleInfoResponse.setPendingProducts((int) shopProducts.stream()
+            .filter(product -> product.getStatus().equals(ProductStatus.PENDING.getStatus()))
+            .count());
+
+        saleInfoResponse.setCancelledProducts((int) shopProducts.stream()
+            .filter(product -> product.getStatus().equals(ProductStatus.REJECTED.getStatus()))
+            .count());
+
+
+        //Set percentage changes
+        LocalDate[] localDates = DateUtil.getPreviousMonthRange(dates[0], dates[1]);
+        Date previousStart = DateUtil.toDate(localDates[0]);
+        Date previousEnd = DateUtil.toDate(localDates[1]);
+
+        //Set percentage total sales
+        Specification<CustomerOrder> previousSpec = Specification.where(
+            CustomerOrderSpecification.hasSellerId(sellerId)
+                .and((CustomerOrderSpecification.isCreatedBetween(previousStart, previousEnd)
+                )));
+
+        List<CustomerOrder> previousOrders = customerOrderRepository.findAll(previousSpec);
+
+        AtomicInteger previousTotal = new AtomicInteger();
+        previousOrders.forEach(customerOrder -> {
+            if (customerOrder.getStatus().equals(PaymentStatus.PAID.name())) {
+                customerOrder.getOrderDetails().forEach(orderDetail -> {
+                    if (orderDetail.getProduct().getShop().getAccount().getAccountId().equals(sellerId)) {
+                        previousTotal.addAndGet(orderDetail.getLineTotal());
+                    }
+                });
+            }
+        });
+
+        saleInfoResponse.setSalePercentageChanges(calculatePercentageChange(previousTotal.get(), saleInfoResponse.getTotalSales()));
+
+        //Set percentage net sales
+        double previousNetTotal = previousTotal.get() * 0.95;
+        double netSalePercentageChanges = calculatePercentageChange((int) previousNetTotal, (int) saleInfoResponse.getTotalNetSales());
+        saleInfoResponse.setNetSalePercentageChanges(netSalePercentageChanges);
+
+        return saleInfoResponse;
     }
 
     private static Date[] adjustedDate(Date startDate, Date endDate) {
@@ -444,16 +536,31 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
                     List<OrderDetail> orderDetails = orderDetailMap.get(order);
 
                     // Sử dụng stream để xử lý dữ liệu
-                    orderDetails.stream()
-                        .map(orderDetail -> OrderProductDTO.builder()
-                            .productId(orderDetail.getProduct().getId())
-                            .productName(orderDetail.getProduct().getProductName())
-                            .quantity(orderDetail.getQuantity())
-                            .unitPrice(orderDetail.getPrice())
-                            .lineTotal(orderDetail.getLineTotal())
-                            .image(orderDetail.getProduct().getImage())
-                            .build())
-                        .forEach(productDTOList::add);
+//                    orderDetails.stream()
+//                        .map(orderDetail -> OrderProductDTO.builder()
+//                            .productId(orderDetail.getProduct().getId())
+//                            .productName(orderDetail.getProduct().getProductName())
+//                            .quantity(orderDetail.getQuantity())
+//                            .unitPrice(orderDetail.getPrice())
+//                            .lineTotal(orderDetail.getLineTotal())
+//                            .image(orderDetail.getProduct().getImage())
+//                            .build())
+//                        .forEach(productDTOList::add);
+
+                    orderDetails.forEach(
+                        orderDetail -> {
+                            if (orderDetail.getProduct().getShop().getShopId().equals(shop.getShopId())) {
+                                productDTOList.add(OrderProductDTO.builder()
+                                    .productId(orderDetail.getProduct().getId())
+                                    .productName(orderDetail.getProduct().getProductName())
+                                    .quantity(orderDetail.getQuantity())
+                                    .unitPrice(orderDetail.getPrice())
+                                    .lineTotal(orderDetail.getLineTotal())
+                                    .image(orderDetail.getProduct().getImage())
+                                    .build());
+                            }
+                        }
+                    );
 
                     // Loại bỏ key sau khi xử lý xong
 //                    orderDetailMap.remove(order);

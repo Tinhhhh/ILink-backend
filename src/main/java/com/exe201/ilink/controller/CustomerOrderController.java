@@ -77,5 +77,16 @@ public class CustomerOrderController {
         return ResponseBuilder.responseBuilderWithData(HttpStatus.OK, "Successfully retrieved registration details", customerOrderService.getRegistrationDetailsForAdmin(startDate, endDate));
     }
 
+    @Operation(
+        summary = "Get sales details for seller")
+    @GetMapping("/seller/sale-details")
+    public ResponseEntity<Object> getSalesDetailsForSeller(@RequestParam(name = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+                                                           @RequestParam(name = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+                                                           @RequestParam(name = "sellerId") UUID sellerId
+
+    ) {
+        return ResponseBuilder.responseBuilderWithData(HttpStatus.OK, "Successfully retrieved sale details", customerOrderService.getSalesDetailsForSeller(startDate, endDate, sellerId));
+    }
+
 
 }

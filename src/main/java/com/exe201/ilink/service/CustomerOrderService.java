@@ -6,6 +6,7 @@ import com.exe201.ilink.model.payload.request.OrderInfo;
 import com.exe201.ilink.model.payload.response.OrderHistoryResponse;
 import com.exe201.ilink.model.payload.response.PaymentStatementResponse;
 import com.exe201.ilink.model.payload.response.RegistrationInfoResponse;
+import com.exe201.ilink.model.payload.response.SaleInfoResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Date;
@@ -23,4 +24,6 @@ public interface CustomerOrderService {
     OrderHistoryResponse getOrderDetailsForSeller(int pageNo, int pageSize, ProductSort sortBy, String status, UUID sellerId, Date startDate, Date endDate);
 
     RegistrationInfoResponse getRegistrationDetailsForAdmin(Date startDate, Date endDate);
+
+    SaleInfoResponse getSalesDetailsForSeller(Date startDate, Date endDate, UUID sellerId);
 }
