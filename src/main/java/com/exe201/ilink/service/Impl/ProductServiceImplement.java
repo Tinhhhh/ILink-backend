@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -152,7 +153,16 @@ public class ProductServiceImplement implements ProductService {
 
     private ShopProductResponse getProductResponse(Page<Product> productContent) {
         List<Product> products = productContent.getContent();
-        List<ProductResponse> content = products.stream().map(prod -> modelMapper.map(prod, ProductResponse.class)).toList();
+        List<ProductResponse> content = new ArrayList<>();
+
+        products.forEach(prod -> {
+            ProductResponse productResponse = modelMapper.map(prod, ProductResponse.class);
+            productResponse.setShopId(prod.getShop().getShopId());
+            productResponse.setProductId(prod.getId());
+            productResponse.setCategoryName(prod.getCategory().getName());
+            productResponse.setShopName(prod.getShop().getShopName());
+            content.add(productResponse);
+        });
 
         return new ShopProductResponse(
             content,

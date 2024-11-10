@@ -253,6 +253,9 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
             checkoutUrl += "/#/paymentSuccess";
         }
         response.setHeader("Location", checkoutUrl);
+        response.setHeader("Cache-Control", "no-store");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Expires", "0");
         response.setStatus(302);
     }
 
@@ -494,17 +497,18 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         customerOrderList.forEach(customerOrder -> {
 
             //Set OrderDetail
-            List<OrderDetail> orderDetails = (orderDetailRepository.findByOrderId(customerOrder.getId())
-                .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Request fails. Order detail not found")));
+//            List<OrderDetail> orderDetails = (orderDetailRepository.findByOrderId(customerOrder.getId())
+//                .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Request fails. Order detail not found")));
 
-            orderDetails.forEach(
+            customerOrder.getOrderDetails().forEach(
                 orderDetail -> {
 
-                    //Set Shop
-                    orderDetail.getProduct().setShop(
-                        shopRepository.findById(orderDetail.getProduct().getShop().getShopId())
-                            .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Request fails. Shop not found"))
-                    );
+//                    //Set Shop
+//                    orderDetail.getProduct().setShop(
+//                        shopRepository.findById(orderDetail.getProduct().getShop().getShopId())
+//                            .orElseThrow(() -> new ILinkException(HttpStatus.INTERNAL_SERVER_ERROR, "Request fails. Shop not found"))
+//                    );
+
                     //Set Order cho tung shop
                     if (shopOrderMap.containsKey(orderDetail.getProduct().getShop())) {
                         shopOrderMap.get(orderDetail.getProduct().getShop()).add(customerOrder);
@@ -518,9 +522,9 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 
 
             if (orderDetailMap.containsKey(customerOrder)) {
-                orderDetailMap.get(customerOrder).addAll(orderDetails);
+                orderDetailMap.get(customerOrder).addAll(customerOrder.getOrderDetails());
             } else {
-                orderDetailMap.put(customerOrder, orderDetails);
+                orderDetailMap.put(customerOrder, customerOrder.getOrderDetails().stream().toList());
             }
 
         });
@@ -534,18 +538,6 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 
                 if (orderDetailMap.containsKey(order)) {
                     List<OrderDetail> orderDetails = orderDetailMap.get(order);
-
-                    // Sử dụng stream để xử lý dữ liệu
-//                    orderDetails.stream()
-//                        .map(orderDetail -> OrderProductDTO.builder()
-//                            .productId(orderDetail.getProduct().getId())
-//                            .productName(orderDetail.getProduct().getProductName())
-//                            .quantity(orderDetail.getQuantity())
-//                            .unitPrice(orderDetail.getPrice())
-//                            .lineTotal(orderDetail.getLineTotal())
-//                            .image(orderDetail.getProduct().getImage())
-//                            .build())
-//                        .forEach(productDTOList::add);
 
                     orderDetails.forEach(
                         orderDetail -> {
